@@ -31,36 +31,53 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
-// Function to display the data from a sheet in a table
-function displaySheetData(sheetName, data) {
+// Function to create a collapsible section
+function createCollapsibleSection(sheetName, data) {
     const container = document.createElement('div');
-    const heading = document.createElement('h2');
-    heading.textContent = `${sheetName} Data`; // Displays the sheet name as the heading
-    container.appendChild(heading);
+    
+    const button = document.createElement('button');
+    button.classList.add('collapsible');
+    button.textContent = `${sheetName} Data`;
 
+    const content = document.createElement('div');
+    content.classList.add('content');
+    
     const table = document.createElement('table');
-    table.style.width = '100%'; // Optional: Makes the table responsive
+    table.style.width = '100%'; 
 
     // Loop through each row of data
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         row.forEach(cellData => {
-            const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td'); // Use <th> for header, <td> for data
+            const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
             cellElement.textContent = cellData;
             rowElement.appendChild(cellElement);
         });
         table.appendChild(rowElement);
     });
 
-    container.appendChild(table);
-    document.body.appendChild(container); // Append the table to the body of the page
+    content.appendChild(table);
+    container.appendChild(button);
+    container.appendChild(content);
+
+    document.getElementById('data-container').appendChild(container);
+
+    button.addEventListener('click', function () {
+        this.classList.toggle('active');
+        const content = this.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+        } else {
+            content.style.display = 'block';
+        }
+    });
 }
 
 // Load all data from all manually specified sheets (tabs)
 async function loadAllSheetsData() {
     for (const sheetName of sheetNames) {
-        const sheetData = await fetchSheetData(sheetName); // Fetch data for each tab
-        displaySheetData(sheetName, sheetData); // Display the data in a table
+        const sheetData = await fetchSheetData(sheetName); 
+        createCollapsibleSection(sheetName, sheetData); 
     }
 }
 
