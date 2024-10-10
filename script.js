@@ -1,6 +1,6 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
-const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
+const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
+const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
 
 // Manually specified list of all sheet names (tabs)
 const sheetNames = [
@@ -25,7 +25,7 @@ function isNumeric(value) {
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName);
+    const encodedSheetName = encodeURIComponent(sheetName); 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
     const response = await fetch(url);
     if (!response.ok) {
@@ -34,6 +34,11 @@ async function fetchSheetData(sheetName) {
     }
     const data = await response.json();
     return data.values || [];
+}
+
+// Function to sanitize the sheet name for use in IDs and selectors
+function sanitizeSheetName(sheetName) {
+    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
 // Function to apply percentage color logic
@@ -119,7 +124,7 @@ function updateAccordionContent(sheetName, data) {
 
 // Function to create an accordion-style section initially
 function createAccordionSection(sheetName, data) {
-    const validSelector = sanitizeSheetName(sheetName);
+    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
     const container = document.createElement('div');
     container.id = validSelector;
 
