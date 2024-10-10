@@ -41,8 +41,8 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage color logic for 5-minute answer rate and set rate
-function applyPercentageColor(cellText, term, nameCell, cityCell, allNameCells, cityGroup) {
+// Function to apply percentage color logic for both 5-minute answer rate and set rate
+function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
     let color = 'white';  // Default color for percentages
 
@@ -141,7 +141,7 @@ function updateAccordionContent(sheetName, data) {
                 if (cellData.includes('%')) {
                     // If it's a percentage, apply the color logic based on thresholds
                     const term = row.includes("5-Minute Answer Rate") ? "5-Minute Answer Rate" : "Set Rate";
-                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, cityCell, cityGroups[cityCell.textContent.trim()], cityGroups[cityCell.textContent.trim()]);
+                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, cityCell, cityGroups[cityCell.textContent.trim()]);
                 } else if (isNumeric(cellData)) {
                     cellElement.style.color = 'white';  // Numbers should be white
                 } else {
@@ -188,9 +188,7 @@ function createAccordionSection(sheetName, data) {
 
     updateAccordionContent(sheetName, data);  // Fill the table with data
 
-    button.addEventListener('click
-
-', function () {
+    button.addEventListener('click', function () {
         this.classList.toggle('active');
         const panel = this.nextElementSibling;
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
