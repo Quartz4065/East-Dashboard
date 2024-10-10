@@ -41,48 +41,48 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage color logic
+// Function to apply percentage color logic for both 5-minute answer rate and set rate
 function applyPercentageColor(cellText, term, nameCell, cityCell, allNameCells, currentNameColor, currentCityColor) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
     let color = 'white';  // Default color for percentages
 
+    // Logic for 5-Minute Answer Rate
     if (term === "5-Minute Answer Rate") {
         if (percentageValue < 5) {
-            color = 'red';  // Turn percentage red if below 5%
+            color = 'red';  // Set percentage to red if below 5%
             nameCell.style.color = 'red';  // Turn the name red if percentage is below 5%
-            allNameCells.forEach(cell => {
-                if (cell.style.color === 'red') {
-                    cityCell.style.color = 'red';  // Turn the city red if any person is red
-                }
-            });
+            cityCell.style.color = 'red';  // Turn the city red
         } else if (percentageValue >= 5 && percentageValue <= 10) {
-            color = 'white';  // Stay white between 5% and 10%
-            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
-            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
+            color = 'white';  // Stay white if between 5% and 10%
+            if (currentNameColor !== 'red' && currentCityColor !== 'red') {
+                nameCell.style.color = 'white';  // Keep the name white unless triggered
+                cityCell.style.color = 'white';  // Keep the city white unless triggered
+            }
         } else if (percentageValue > 10) {
             color = '#00FF00';  // Turn percentage green if above 10%
-            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
-            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
+            if (currentNameColor !== 'red' && currentCityColor !== 'red') {
+                nameCell.style.color = 'white';  // Keep the name white unless triggered
+                cityCell.style.color = 'white';  // Keep the city white unless triggered
+            }
         }
     }
 
+    // Logic for Set Rate (similar conditions)
     if (term === "Set Rate") {
         if (percentageValue < 25) {
             color = 'red';  // Set percentage to red if below 25%
-            nameCell.style.color = 'red';  // Turn the name red if below 25%
-            allNameCells.forEach(cell => {
-                if (cell.style.color === 'red') {
-                    cityCell.style.color = 'red';  // Turn the city red if any person is red
-                }
-            });
+            nameCell.style.color = 'red';  // Turn the name red
+            cityCell.style.color = 'red';  // Turn the city red
         } else if (percentageValue > 45) {
             color = '#00FF00';  // Set percentage to green if above 45%
-            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
-            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
+            if (currentNameColor !== 'red' && currentCityColor !== 'red') {
+                nameCell.style.color = 'white';  // Keep the name white unless triggered
+                cityCell.style.color = 'white';  // Keep the city white unless triggered
+            }
         }
     }
 
-    return color;  // Return the percentage color
+    return color;  // Return the color for the percentage
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -203,6 +203,8 @@ async function updateAllSheetsData() {
         const sheetData = await fetchSheetData(sheetName);
         updateAccordionContent(sheetName, sheetData);  // Update only the content
     }
+
+
 }
 
 // Set up auto-fetching every two minutes, updating the content only
