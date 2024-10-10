@@ -42,7 +42,7 @@ function sanitizeSheetName(sheetName) {
 }
 
 // Function to apply percentage color logic for both 5-minute answer rate and set rate
-function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup) {
+function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup = []) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
     let color = 'white';  // Default color for percentages
 
@@ -53,13 +53,13 @@ function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup) {
             cityCell.style.color = 'red';  // Turn the city red
         } else if (percentageValue > 5 && percentageValue < 10) {
             color = 'white';  // Keep percentage white between 5% and 9.99%
-            if (!cityGroup.some(person => person.style.color === 'red')) {
+            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
                 nameCell.style.color = 'white';  // Keep the name white unless it's triggered
                 cityCell.style.color = 'white';  // Keep the city white unless it's triggered
             }
         } else if (percentageValue >= 10) {
             color = '#00FF00';  // Turn percentage green if 10% or more
-            if (!cityGroup.some(person => person.style.color === 'red')) {
+            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
                 nameCell.style.color = 'white';  // Keep the name white unless triggered
                 cityCell.style.color = 'white';  // Keep the city white unless triggered
             }
@@ -73,13 +73,13 @@ function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup) {
             cityCell.style.color = 'red';  // Turn the city red
         } else if (percentageValue >= 25 && percentageValue < 40) {
             color = 'white';  // Keep percentage white between 25% and 39.99%
-            if (!cityGroup.some(person => person.style.color === 'red')) {
+            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
                 nameCell.style.color = 'white';  // Keep the name white unless it's triggered
                 cityCell.style.color = 'white';  // Keep the city white unless it's triggered
             }
         } else if (percentageValue >= 40) {
             color = '#00FF00';  // Turn percentage green if 40% or more
-            if (!cityGroup.some(person => person.style.color === 'red')) {
+            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
                 nameCell.style.color = 'white';  // Keep the name white unless triggered
                 cityCell.style.color = 'white';  // Keep the city white unless triggered
             }
