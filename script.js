@@ -205,9 +205,7 @@ async function updateAllSheetsData() {
     }
 }
 
-// Set up auto-fetching
-
- every two minutes, updating the content only
+// Set up auto-fetching every two minutes, updating the content only
 function autoFetchData() {
     loadAllSheetsData();  // Initial load
     setInterval(updateAllSheetsData, 120000);  // Update every 2 minutes
