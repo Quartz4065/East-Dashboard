@@ -20,7 +20,18 @@ const sheetNames = [
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}?key=${apiKey}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA}/values/${"Daily", 
+    "Previous Day", 
+    "Saturday", 
+    "Leaderboard", 
+    "Commission", 
+    "PIPS and Benching", 
+    "Today's No Shows", 
+    "Keepy Uppy", 
+    "Critical Numbers", 
+    "MTD Shows", 
+    "Incident Tracker", 
+    "Answer Rates"}?key=${AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJbqxxOzNqkvNA0VbKl3apzOA}`;
     const response = await fetch(url);
     if (!response.ok) {
         console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
