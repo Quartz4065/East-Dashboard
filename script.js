@@ -98,7 +98,7 @@ function updateAccordionContent(sheetName, data) {
                 cellElement.style.color = 'yellow';
             } else {
                 if (cellIndex === 0) {
-                    // Person's name (white by default)
+                    // Person's name (default to white)
                     cellElement.style.color = 'white';
                 } else if (cellData.includes('%')) {
                     // If it's a percentage, apply the color logic based on thresholds
