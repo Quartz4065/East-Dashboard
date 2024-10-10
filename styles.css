@@ -67,19 +67,25 @@ td {
     color: #E0E0E0;
 }
 
-/* Special color handling for "Daily" tab */
-.daily-header {
-    color: red; /* Red for headers and labels */
-}
-
-.daily-data {
-    color: green; /* Green for numbers and percentages */
-}
-
-.daily-text {
-    color: silver; /* Silver for words (names, locations) */
-}
-
 div {
     margin-bottom: 40px;
+}
+
+/* Color Picker Panel */
+#color-picker-panel {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#color-picker-panel label {
+    margin-right: 10px;
+}
+
+#color-picker-panel input[type="color"] {
+    margin-left: 10px;
 }
