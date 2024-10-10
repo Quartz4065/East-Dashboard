@@ -32,7 +32,7 @@ const dailyDataTerms = [
     "Productivity", "Framework", "Total On Calendar", "Needed", "ISR", "Main Focus"
 ];
 
-// Person names that need to be in silver (Shannon McCool as well)
+// Person names that need to be in silver initially
 const personNames = ["Shannon McCool"];
 
 // Function to check if a value is a city name
@@ -45,7 +45,7 @@ function isPersonName(value) {
     return personNames.includes(value) || /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
 }
 
-// Function to check if a value is a numerical value or includes special symbols that should be in green
+// Function to check if a value is a numerical value or includes special symbols that should be in white
 function isNumeric(value) {
     return !isNaN(parseFloat(value)) && isFinite(value);
 }
@@ -57,8 +57,33 @@ function isDailyDataTerm(value) {
 
 // Function to check if a value is a date (basic format check for date-like strings)
 function isDate(value) {
-    // Basic check to match common date patterns (e.g., MM/DD/YYYY or DD/MM/YYYY)
     return /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value);
+}
+
+// Function to apply color based on percentage rules for "5-Minute Answer Rate" and "Set Rate"
+// and also trigger the name change to red if the percentage turns red
+function applyPercentageColor(cellText, term, nameCell) {
+    const percentageValue = parseFloat(cellText.replace('%', ''));
+    
+    if (term === "5-Minute Answer Rate") {
+        if (percentageValue < 10) {
+            nameCell.style.color = 'red'; // Turn person's name red if below 10%
+            return 'red'; // Bright red for percentage
+        } else if (percentageValue > 20) {
+            return '#00FF00'; // Bright green if above 20%
+        }
+    }
+
+    if (term === "Set Rate") {
+        if (percentageValue < 25) {
+            nameCell.style.color = 'red'; // Turn person's name red if below 25%
+            return 'red'; // Bright red for percentage
+        } else if (percentageValue > 45) {
+            return '#00FF00'; // Bright green if above 45%
+        }
+    }
+
+    return 'white'; // Default to white for all other numbers
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -102,18 +127,31 @@ function updateAccordionContent(sheetName, data) {
 
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
-        row.forEach(cellData => {
+        row.forEach((cellData, cellIndex) => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             // Apply colors based on the content
             if (isNumeric(cellData)) {
-                cellElement.style.color = 'green'; // Numbers in green
+                // Special handling for 5-Min Answer Rate and Set Rate
+                if (sheetName === "Daily") {
+                    if (row.includes("5-Minute Answer Rate")) {
+                        const nameCell = rowElement.children[0]; // Assume person's name is first in the row
+                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
+                    } else if (row.includes("Set Rate")) {
+                        const nameCell = rowElement.children[0]; // Assume person's name is first in the row
+                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
+                    } else {
+                        cellElement.style.color = 'white'; // Default to white for all other numeric values
+                    }
+                } else {
+                    cellElement.style.color = 'white'; // Default to white for all numeric values
+                }
             } else if (isDailyDataTerm(cellData) || rowIndex === 0) {
                 cellElement.style.color = 'yellow'; // Labels, headers, and daily data terms in yellow
             } else if (isCity(cellData)) {
                 cellElement.style.color = '#00BFFF'; // City names in bright blue
             } else if (isPersonName(cellData)) {
-                cellElement.style.color = 'silver'; // Shannon McCool and other person names in silver
+                cellElement.style.color = 'silver'; // Person names in silver
             } else if (isDate(cellData)) {
                 cellElement.style.color = 'white'; // Dates in white
             } else {
