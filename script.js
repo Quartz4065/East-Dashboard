@@ -18,6 +18,11 @@ const sheetNames = [
     "Answer Rates"
 ];
 
+// Function to check if a value is a numeric value
+function isNumeric(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+}
+
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
     const encodedSheetName = encodeURIComponent(sheetName); 
