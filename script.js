@@ -18,21 +18,34 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Important keywords that should be highlighted in yellow
+// List of cities that should be highlighted in bright blue
+const cityNames = [
+    "Indianapolis", "Detroit", "Nashville", "Dublin", "Wellesley", 
+    "Philadelphia", "Pittsburgh", "Chevy Chase", "Alexandria", 
+    "Baltimore", "Westbury", "Persephone"
+];
+
+// Important keywords that should be highlighted in yellow (e.g., top row text or labels next to data)
 const importantTerms = [
     "ISR", "5 min answer rate", "STC", 
     "showrate-3 day", "set rate trend -2 day", 
     "on calendar", "Total"
 ];
 
-// Function to check if a value is a name (capitalized, not numbers)
-function isName(value) {
+// Function to check if a value is a city name
+function isCity(value) {
+    return cityNames.includes(value);
+}
+
+// Function to check if a value is a person's name (capitalized names)
+function isPersonName(value) {
     return /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
 }
 
-// Function to check if a value contains both wording and numbers
-function containsWording(value) {
-    return /[A-Za-z]+/.test(value) && /\d+/.test(value) && value !== "#DIV/0!";
+// Function to check if a value is a numerical value or includes special symbols that should be in green
+function isNumericOrSpecial(value) {
+    // Check if the value is numeric or includes £, /, !, or %
+    return !isNaN(parseFloat(value)) || /[£\/!%]/.test(value);
 }
 
 // Function to check if a value contains important terms for yellow highlighting
@@ -86,15 +99,17 @@ function updateAccordionContent(sheetName, data) {
 
             // Apply colors based on the content
             if (rowIndex === 0) {
-                cellElement.style.color = 'white'; // Header in white
+                cellElement.style.color = 'yellow'; // Header text in yellow
+            } else if (isCity(cellData)) {
+                cellElement.style.color = '#00BFFF'; // City names in bright blue
+            } else if (isPersonName(cellData)) {
+                cellElement.style.color = 'silver'; // Person names in silver
+            } else if (isNumericOrSpecial(cellData)) {
+                cellElement.style.color = 'green'; // Numbers, percentages, or special symbols in green
             } else if (isImportantTerm(cellData)) {
-                cellElement.style.color = 'yellow'; // Important terms in yellow
-            } else if (isName(cellData)) {
-                cellElement.style.color = 'silver'; // Names in silver
-            } else if (containsWording(cellData) || isNaN(parseFloat(cellData)) && cellData !== "#DIV/0!") {
-                cellElement.style.color = 'silver'; // Text (with wording and numbers) in silver
+                cellElement.style.color = 'yellow'; // Important terms next to data in yellow
             } else {
-                cellElement.style.color = 'green'; // Numbers, percentages, and symbols in green
+                cellElement.style.color = 'yellow'; // Default text next to data in yellow
             }
 
             cellElement.textContent = cellData;
