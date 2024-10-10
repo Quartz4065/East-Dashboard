@@ -45,11 +45,23 @@ function createCollapsibleSection(sheetName, data) {
     const table = document.createElement('table');
     table.style.width = '100%'; 
 
-    // Loop through each row of data
+    // Apply special color-coding for the "Daily" tab
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         row.forEach(cellData => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
+            
+            // Custom formatting for the "Daily" tab
+            if (sheetName === 'Daily') {
+                if (rowIndex === 0) {
+                    cellElement.style.color = 'red'; // Headers and labels in Red
+                } else if (isNaN(cellData) && !cellData.includes('%')) {
+                    cellElement.style.color = 'green'; // Names and locations in Green
+                } else {
+                    cellElement.style.color = 'green'; // Numbers and percentages in Green
+                }
+            }
+
             cellElement.textContent = cellData;
             rowElement.appendChild(cellElement);
         });
