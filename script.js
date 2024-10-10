@@ -113,17 +113,4 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get selected colors from color pickers
         headerColor = document.getElementById('header-color').value;
         nameColor = document.getElementById('name-color').value;
-        dataColor = document.getElementById('data-color').value;
-        textColor = document.getElementById('text-color').value;
-
-        // Clear existing data and reload with new colors
-        document.getElementById('data-container').innerHTML = '';
-        loadAllSheetsData(); // Reload the data with the new colors applied
-    }
-
-    // Add event listener for the "Apply Colors" button
-    document.getElementById('apply-colors').addEventListener('click', applySelectedColors);
-
-    // Load all data when the page loads
-    loadAllSheetsData();
-});
+        dataColor = document.getElement​⬤
