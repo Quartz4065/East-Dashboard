@@ -9,6 +9,23 @@
 <body>
     <h1>Google Sheets Data Dashboard</h1>
 
+    <!-- Color Picker Panel -->
+    <div id="color-picker-panel">
+        <label for="header-color">Header Color:</label>
+        <input type="color" id="header-color" value="#FF0000"> <!-- Red by default -->
+
+        <label for="name-color">Name Color:</label>
+        <input type="color" id="name-color" value="#FFA500"> <!-- Orange by default -->
+
+        <label for="data-color">Data Color:</label>
+        <input type="color" id="data-color" value="#008000"> <!-- Green by default -->
+
+        <label for="text-color">Text Color:</label>
+        <input type="color" id="text-color" value="#C0C0C0"> <!-- Silver by default -->
+
+        <button id="apply-colors">Apply Colors</button>
+    </div>
+
     <!-- Collapsible sections will be dynamically generated here -->
     <div id="data-container" class="scroll-container"></div>
 
