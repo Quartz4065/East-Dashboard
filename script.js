@@ -18,46 +18,22 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// List of cities that should be highlighted in bright blue
-const cityNames = [
-    "Indianapolis", "Detroit", "Nashville", "Dublin", "Wellesley", 
-    "Philadelphia", "Pittsburgh", "Chevy Chase", "Alexandria", 
-    "Baltimore", "Westbury", "Parsippany"
-];
-
-// Important keywords for the "Daily Data" tab that should be in yellow (non-numeric)
-const dailyDataTerms = [
-    "Daily Sets", "Sets Needed", "Next Days Needed", "On Calendar", 
-    "Sets", "Answers", "5-Minute Answer Rate", "Set Rate", "Calls", 
-    "Productivity", "Framework", "Total On Calendar", "Needed", "ISR", "Main Focus"
-];
-
-// Person names that need to be in silver initially
-const personNames = ["Shannon McCool"];
-
-// Function to check if a value is a city name
-function isCity(value) {
-    return cityNames.includes(value);
+// Function to fetch data from a specific sheet (tab)
+async function fetchSheetData(sheetName) {
+    const encodedSheetName = encodeURIComponent(sheetName); 
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
+        return [];
+    }
+    const data = await response.json();
+    return data.values || [];
 }
 
-// Function to check if a value is a person's name (capitalized names, including Shannon McCool)
-function isPersonName(value) {
-    return personNames.includes(value) || /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
-}
-
-// Function to check if a value is a numerical value or includes special symbols that should be in white
-function isNumeric(value) {
-    return !isNaN(parseFloat(value)) && isFinite(value);
-}
-
-// Function to check if a value should be yellow on the "Daily Data" tab
-function isDailyDataTerm(value) {
-    return dailyDataTerms.some(term => value.toLowerCase().includes(term.toLowerCase()));
-}
-
-// Function to check if a value is a date (basic format check for date-like strings)
-function isDate(value) {
-    return /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value);
+// Function to sanitize the sheet name for use in IDs and selectors
+function sanitizeSheetName(sheetName) {
+    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
 // Function to apply color based on percentage rules for "5-Minute Answer Rate" and "Set Rate"
@@ -86,24 +62,6 @@ function applyPercentageColor(cellText, term, nameCell) {
     return 'white'; // Default to white for all other numbers
 }
 
-// Function to fetch data from a specific sheet (tab)
-async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName); 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
-        return [];
-    }
-    const data = await response.json();
-    return data.values || [];
-}
-
-// Function to sanitize the sheet name for use in IDs and selectors
-function sanitizeSheetName(sheetName) {
-    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
-}
-
 // Function to update the content of an accordion section without re-rendering it
 function updateAccordionContent(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName); // Sanitize the selector
@@ -125,39 +83,33 @@ function updateAccordionContent(sheetName, data) {
 
     table.innerHTML = ''; // Clear existing data
 
-    // Loop through each row and handle colors based on content
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         row.forEach((cellData, cellIndex) => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
-            // If this is the row containing the 5-Min Answer Rate or Set Rate, handle those specially
             if (rowIndex === 0) {
-                // Handle header rows (set them yellow)
+                // Header row (labels should be yellow)
                 cellElement.style.color = 'yellow';
             } else {
-                if (cellIndex === 0 && isPersonName(cellData)) {
-                    // Person's name column (we will make it red if the percentages nearby are low)
-                    cellElement.style.color = 'silver';
+                if (cellIndex === 0) {
+                    // Person's name (white by default)
+                    cellElement.style.color = 'white';
                 } else if (cellData.includes('%')) {
-                    // Percentage column (handle 5-Min Answer Rate and Set Rate)
-                    const nameCell = rowElement.children[0]; // Person's name is the first column in the row
+                    // If it's a percentage, apply the color logic based on thresholds
+                    const nameCell = rowElement.children[0]; // The name cell is the first in the row
                     if (row.includes("5-Minute Answer Rate")) {
                         cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
                     } else if (row.includes("Set Rate")) {
                         cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
+                    } else {
+                        cellElement.style.color = 'white'; // Default to white if no special condition applies
                     }
                 } else if (isNumeric(cellData)) {
-                    // All other numbers should be white
+                    // Numbers should be white
                     cellElement.style.color = 'white';
-                } else if (isDailyDataTerm(cellData)) {
-                    // Terms and labels should be yellow
-                    cellElement.style.color = 'yellow';
-                } else if (isCity(cellData)) {
-                    // Cities should be bright blue
-                    cellElement.style.color = '#00BFFF';
                 } else {
-                    // Default text style
+                    // Default text should be yellow
                     cellElement.style.color = 'yellow';
                 }
             }
