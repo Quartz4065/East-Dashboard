@@ -74,14 +74,14 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
-// Function to safely convert sheet names to valid CSS selectors using CSS.escape
-function makeValidSelector(sheetName) {
-    return CSS.escape(sheetName.replace(/\s+/g, '-')); // Replace spaces with hyphens and escape special characters
+// Function to sanitize the sheet name for use in IDs and selectors
+function sanitizeSheetName(sheetName) {
+    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
 // Function to update the content of an accordion section without re-rendering it
 function updateAccordionContent(sheetName, data) {
-    const validSelector = makeValidSelector(sheetName); // Escape and format the selector
+    const validSelector = sanitizeSheetName(sheetName); // Sanitize the selector
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
     
     // Check if the contentDiv exists before proceeding
@@ -129,7 +129,7 @@ function updateAccordionContent(sheetName, data) {
 
 // Function to create an accordion-style section initially
 function createAccordionSection(sheetName, data) {
-    const validSelector = makeValidSelector(sheetName); // Escape and format the selector
+    const validSelector = sanitizeSheetName(sheetName); // Sanitize the sheet name for use in the ID
     const container = document.createElement('div');
     container.id = validSelector; // Set unique ID for each accordion section
 
