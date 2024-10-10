@@ -18,6 +18,13 @@ const sheetNames = [
     "Answer Rates"
 ];
 
+// Important keywords that should be highlighted in yellow
+const importantTerms = [
+    "ISR", "5 min answer rate", "STC", 
+    "showrate-3 day", "set rate trend -2 day", 
+    "on calendar", "Total"
+];
+
 // Function to check if a value is a name (capitalized, not numbers)
 function isName(value) {
     return /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
@@ -26,6 +33,11 @@ function isName(value) {
 // Function to check if a value contains both wording and numbers
 function containsWording(value) {
     return /[A-Za-z]+/.test(value) && /\d+/.test(value) && value !== "#DIV/0!";
+}
+
+// Function to check if a value contains important terms for yellow highlighting
+function isImportantTerm(value) {
+    return importantTerms.some(term => value.toLowerCase().includes(term.toLowerCase()));
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -41,36 +53,11 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
-// Function to save accordion state (open/closed)
-function saveAccordionState() {
-    const states = Array.from(document.querySelectorAll('.accordion')).map(btn => btn.classList.contains('active'));
-    localStorage.setItem('accordionState', JSON.stringify(states));
-}
-
-// Function to restore accordion state (open/closed)
-function restoreAccordionState() {
-    const states = JSON.parse(localStorage.getItem('accordionState')) || [];
-    const buttons = document.querySelectorAll('.accordion');
-    states.forEach((state, i) => {
-        if (state) {
-            buttons[i].classList.add('active');
-            buttons[i].nextElementSibling.style.display = 'block';
-        }
-    });
-}
-
-// Function to create an accordion-style section
-function createAccordionSection(sheetName, data) {
-    const container = document.createElement('div');
-    const button = document.createElement('button');
-    button.classList.add('accordion');
-    button.textContent = `${sheetName} Data`;
-
-    const content = document.createElement('div');
-    content.classList.add('panel');
-
-    const table = document.createElement('table');
-    table.classList.add('data-table');
+// Function to update the content of an accordion section without re-rendering it
+function updateAccordionContent(sheetName, data) {
+    const contentDiv = document.querySelector(`#${sheetName.replace(/\s+/g, '-')} .panel`);
+    const table = contentDiv.querySelector('table');
+    table.innerHTML = ''; // Clear existing data
 
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
@@ -80,8 +67,10 @@ function createAccordionSection(sheetName, data) {
             // Apply colors based on the content
             if (rowIndex === 0) {
                 cellElement.style.color = 'white'; // Header in white
+            } else if (isImportantTerm(cellData)) {
+                cellElement.style.color = 'yellow'; // Important terms in yellow
             } else if (isName(cellData)) {
-                cellElement.style.color = 'orange'; // Names in orange
+                cellElement.style.color = 'silver'; // Names in silver
             } else if (containsWording(cellData) || isNaN(parseFloat(cellData)) && cellData !== "#DIV/0!") {
                 cellElement.style.color = 'silver'; // Text (with wording and numbers) in silver
             } else {
@@ -93,34 +82,58 @@ function createAccordionSection(sheetName, data) {
         });
         table.appendChild(rowElement);
     });
+}
+
+// Function to create an accordion-style section initially
+function createAccordionSection(sheetName, data) {
+    const container = document.createElement('div');
+    container.id = sheetName.replace(/\s+/g, '-'); // Unique ID for each accordion section
+
+    const button = document.createElement('button');
+    button.classList.add('accordion');
+    button.textContent = `${sheetName} Data`;
+
+    const content = document.createElement('div');
+    content.classList.add('panel');
+
+    const table = document.createElement('table');
+    table.classList.add('data-table');
 
     content.appendChild(table);
     container.appendChild(button);
     container.appendChild(content);
     document.getElementById('data-container').appendChild(container);
 
+    updateAccordionContent(sheetName, data); // Fill the table with data
+
     button.addEventListener('click', function () {
         this.classList.toggle('active');
         const panel = this.nextElementSibling;
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        saveAccordionState(); // Save state when accordion is toggled
     });
 }
 
-// Function to load data for all sheets
+// Function to load data for all sheets initially
 async function loadAllSheetsData() {
     document.getElementById('data-container').innerHTML = ''; // Clear existing data
     for (const sheetName of sheetNames) {
         const sheetData = await fetchSheetData(sheetName);
-        createAccordionSection(sheetName, sheetData);
+        createAccordionSection(sheetName, sheetData); // Create accordion sections initially
     }
-    restoreAccordionState(); // Restore accordion open/close state after loading
 }
 
-// Set up auto-fetching every two minutes, preserving the accordion state
+// Function to update data for all sheets without reloading the whole structure
+async function updateAllSheetsData() {
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        updateAccordionContent(sheetName, sheetData); // Update only the content
+    }
+}
+
+// Set up auto-fetching every two minutes, updating the content only
 function autoFetchData() {
-    loadAllSheetsData();
-    setInterval(loadAllSheetsData, 120000); // Every 2 minutes
+    loadAllSheetsData(); // Initial load
+    setInterval(updateAllSheetsData, 120000); // Update every 2 minutes
 }
 
 // Load data when the page loads
