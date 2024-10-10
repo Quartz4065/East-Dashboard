@@ -18,18 +18,18 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// List of cities that should be highlighted in bright blue (including Parsippany)
+// List of cities that should be highlighted in bright blue
 const cityNames = [
     "Indianapolis", "Detroit", "Nashville", "Dublin", "Wellesley", 
     "Philadelphia", "Pittsburgh", "Chevy Chase", "Alexandria", 
     "Baltimore", "Westbury", "Parsippany"
 ];
 
-// Important keywords for the "Daily Data" tab that should be in yellow
+// Important keywords for the "Daily Data" tab that should be in yellow (non-numeric)
 const dailyDataTerms = [
     "Daily Sets", "Sets Needed", "Next Days Needed", "On Calendar", 
     "Sets", "Answers", "5-Minute Answer Rate", "Set Rate", "Calls", 
-    "Productivity", "Framework", "Total On Calendar", "Needed"
+    "Productivity", "Framework", "Total On Calendar", "Needed", "ISR", "Main Focus"
 ];
 
 // Person names that need to be in silver (Shannon McCool as well)
@@ -46,8 +46,8 @@ function isPersonName(value) {
 }
 
 // Function to check if a value is a numerical value or includes special symbols that should be in green
-function isNumericOrSpecial(value) {
-    return !isNaN(parseFloat(value)) || /[£\/!%]/.test(value);
+function isNumeric(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
 }
 
 // Function to check if a value should be yellow on the "Daily Data" tab
@@ -74,14 +74,14 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
-// Function to safely convert sheet names to valid CSS selectors
+// Function to safely convert sheet names to valid CSS selectors using CSS.escape
 function makeValidSelector(sheetName) {
     return CSS.escape(sheetName.replace(/\s+/g, '-')); // Replace spaces with hyphens and escape special characters
 }
 
 // Function to update the content of an accordion section without re-rendering it
 function updateAccordionContent(sheetName, data) {
-    const validSelector = makeValidSelector(sheetName);
+    const validSelector = makeValidSelector(sheetName); // Escape and format the selector
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
     
     // Check if the contentDiv exists before proceeding
@@ -106,20 +106,18 @@ function updateAccordionContent(sheetName, data) {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             // Apply colors based on the content
-            if (rowIndex === 0) {
-                cellElement.style.color = 'yellow'; // Header text in yellow
+            if (isNumeric(cellData)) {
+                cellElement.style.color = 'green'; // Numbers in green
+            } else if (isDailyDataTerm(cellData) || rowIndex === 0) {
+                cellElement.style.color = 'yellow'; // Labels, headers, and daily data terms in yellow
             } else if (isCity(cellData)) {
                 cellElement.style.color = '#00BFFF'; // City names in bright blue
             } else if (isPersonName(cellData)) {
                 cellElement.style.color = 'silver'; // Shannon McCool and other person names in silver
             } else if (isDate(cellData)) {
                 cellElement.style.color = 'white'; // Dates in white
-            } else if (isNumericOrSpecial(cellData)) {
-                cellElement.style.color = 'green'; // Numbers, percentages, or special symbols in green
-            } else if (sheetName === "Daily" && isDailyDataTerm(cellData)) {
-                cellElement.style.color = 'yellow'; // Important "Daily Data" terms in yellow
             } else {
-                cellElement.style.color = 'yellow'; // Default text in yellow (for labels)
+                cellElement.style.color = 'yellow'; // Default text in yellow
             }
 
             cellElement.textContent = cellData;
@@ -131,7 +129,7 @@ function updateAccordionContent(sheetName, data) {
 
 // Function to create an accordion-style section initially
 function createAccordionSection(sheetName, data) {
-    const validSelector = makeValidSelector(sheetName);
+    const validSelector = makeValidSelector(sheetName); // Escape and format the selector
     const container = document.createElement('div');
     container.id = validSelector; // Set unique ID for each accordion section
 
