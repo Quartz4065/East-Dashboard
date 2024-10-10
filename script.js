@@ -31,6 +31,12 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
+// Function to check if a value is a name (we'll use a simple rule)
+function isName(value) {
+    // Assumes names are usually capitalized and not numbers or percentages
+    return /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
+}
+
 // Function to create a collapsible section
 function createCollapsibleSection(sheetName, data) {
     const container = document.createElement('div');
@@ -55,8 +61,12 @@ function createCollapsibleSection(sheetName, data) {
             if (sheetName === 'Daily') {
                 if (rowIndex === 0) {
                     cellElement.style.color = 'red'; // Headers and labels in Red
+                } else if (isName(cellData)) {
+                    cellElement.style.color = 'orange'; // Names in Orange
+                } else if (cellData === '5 Min Answer Rate') {
+                    cellElement.style.color = 'silver'; // Special label "5 Min Answer Rate" in Silver
                 } else if (isNaN(parseFloat(cellData)) && !cellData.includes('%')) {
-                    cellElement.style.color = 'silver'; // Words, names, locations in Silver
+                    cellElement.style.color = 'silver'; // Locations and other words in Silver
                 } else {
                     cellElement.style.color = 'green'; // Numbers and percentages in Green
                 }
