@@ -73,7 +73,11 @@ td {
 }
 
 .daily-data {
-    color: green; /* Green for numbers and names */
+    color: green; /* Green for numbers and percentages */
+}
+
+.daily-text {
+    color: silver; /* Silver for words (names, locations) */
 }
 
 div {
