@@ -18,7 +18,7 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Function to check if a value is a numeric value
+// Function to check if a value is numeric
 function isNumeric(value) {
     return !isNaN(parseFloat(value)) && isFinite(value);
 }
@@ -41,41 +41,37 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply color based on percentage rules for "5-Minute Answer Rate" and "Set Rate"
-// Also, this triggers the employee name to turn red if either percentage condition is not met
+// Function to apply color based on percentage rules and trigger name change to red if conditions are met
 function applyPercentageColor(cellText, term, nameCell) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
     let color = 'white'; // Default color for percentages and names
 
-    // Handling 5-Minute Answer Rate
     if (term === "5-Minute Answer Rate") {
         if (percentageValue < 10) {
             nameCell.style.color = 'red'; // Turn person's name red if below 10%
             color = 'red'; // Bright red for percentage
         } else if (percentageValue > 20) {
-            color = '#00FF00'; // Bright green for percentage above 20%
+            color = '#00FF00'; // Bright green if above 20%
         }
     }
 
-    // Handling Set Rate
     if (term === "Set Rate") {
         if (percentageValue < 25) {
             nameCell.style.color = 'red'; // Turn person's name red if below 25%
             color = 'red'; // Bright red for percentage
         } else if (percentageValue > 45) {
-            color = '#00FF00'; // Bright green for percentage above 45%
+            color = '#00FF00'; // Bright green if above 45%
         }
     }
 
     return color; // Return the calculated color
 }
 
-// Function to update the content of an accordion section without re-rendering it
+// Function to update the content of an accordion section
 function updateAccordionContent(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName); // Sanitize the selector
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
     
-    // Check if the contentDiv exists before proceeding
     if (!contentDiv) {
         console.error(`Accordion panel for ${sheetName} not found.`);
         return;
@@ -83,7 +79,6 @@ function updateAccordionContent(sheetName, data) {
 
     const table = contentDiv.querySelector('table');
     
-    // Check if the table exists inside the panel
     if (!table) {
         console.error(`Table for ${sheetName} not found inside the panel.`);
         return;
@@ -103,7 +98,7 @@ function updateAccordionContent(sheetName, data) {
                 const isNameCell = (cellIndex === 0);
                 const isPercentage = cellData.includes('%');
                 
-                // Handle name cell (default to white)
+                // Handle the name cell (default to white)
                 if (isNameCell) {
                     cellElement.style.color = 'white';
                 }
@@ -135,7 +130,7 @@ function updateAccordionContent(sheetName, data) {
     });
 }
 
-// Function to create an accordion-style section initially
+// Function to create an accordion-style section
 function createAccordionSection(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName); // Sanitize the sheet name for use in the ID
     const container = document.createElement('div');
