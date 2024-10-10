@@ -125,37 +125,41 @@ function updateAccordionContent(sheetName, data) {
 
     table.innerHTML = ''; // Clear existing data
 
+    // Loop through each row and handle colors based on content
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         row.forEach((cellData, cellIndex) => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
-            // Apply colors based on the content
-            if (isNumeric(cellData)) {
-                // Special handling for 5-Min Answer Rate and Set Rate
-                if (sheetName === "Daily") {
+            // If this is the row containing the 5-Min Answer Rate or Set Rate, handle those specially
+            if (rowIndex === 0) {
+                // Handle header rows (set them yellow)
+                cellElement.style.color = 'yellow';
+            } else {
+                if (cellIndex === 0 && isPersonName(cellData)) {
+                    // Person's name column (we will make it red if the percentages nearby are low)
+                    cellElement.style.color = 'silver';
+                } else if (cellData.includes('%')) {
+                    // Percentage column (handle 5-Min Answer Rate and Set Rate)
+                    const nameCell = rowElement.children[0]; // Person's name is the first column in the row
                     if (row.includes("5-Minute Answer Rate")) {
-                        const nameCell = rowElement.children[0]; // Assume person's name is first in the row
                         cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
                     } else if (row.includes("Set Rate")) {
-                        const nameCell = rowElement.children[0]; // Assume person's name is first in the row
                         cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
-                    } else {
-                        cellElement.style.color = 'white'; // Default to white for all other numeric values
                     }
+                } else if (isNumeric(cellData)) {
+                    // All other numbers should be white
+                    cellElement.style.color = 'white';
+                } else if (isDailyDataTerm(cellData)) {
+                    // Terms and labels should be yellow
+                    cellElement.style.color = 'yellow';
+                } else if (isCity(cellData)) {
+                    // Cities should be bright blue
+                    cellElement.style.color = '#00BFFF';
                 } else {
-                    cellElement.style.color = 'white'; // Default to white for all numeric values
+                    // Default text style
+                    cellElement.style.color = 'yellow';
                 }
-            } else if (isDailyDataTerm(cellData) || rowIndex === 0) {
-                cellElement.style.color = 'yellow'; // Labels, headers, and daily data terms in yellow
-            } else if (isCity(cellData)) {
-                cellElement.style.color = '#00BFFF'; // City names in bright blue
-            } else if (isPersonName(cellData)) {
-                cellElement.style.color = 'silver'; // Person names in silver
-            } else if (isDate(cellData)) {
-                cellElement.style.color = 'white'; // Dates in white
-            } else {
-                cellElement.style.color = 'yellow'; // Default text in yellow
             }
 
             cellElement.textContent = cellData;
