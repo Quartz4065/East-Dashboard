@@ -18,11 +18,11 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// List of cities that should be highlighted in bright blue
+// List of cities that should be highlighted in bright blue (including Parsippany)
 const cityNames = [
     "Indianapolis", "Detroit", "Nashville", "Dublin", "Wellesley", 
     "Philadelphia", "Pittsburgh", "Chevy Chase", "Alexandria", 
-    "Baltimore", "Westbury", "Persephone"
+    "Baltimore", "Westbury", "Parsippany"
 ];
 
 // Important keywords for the "Daily Data" tab that should be in yellow
@@ -33,7 +33,7 @@ const dailyDataTerms = [
 ];
 
 // Person names that need to be in silver (Shannon McCool as well)
-const personNames = ["Shannon McCool"]; // List other names if needed
+const personNames = ["Shannon McCool"];
 
 // Function to check if a value is a city name
 function isCity(value) {
@@ -53,6 +53,12 @@ function isNumericOrSpecial(value) {
 // Function to check if a value should be yellow on the "Daily Data" tab
 function isDailyDataTerm(value) {
     return dailyDataTerms.some(term => value.toLowerCase().includes(term.toLowerCase()));
+}
+
+// Function to check if a value is a date (basic format check for date-like strings)
+function isDate(value) {
+    // Basic check to match common date patterns (e.g., MM/DD/YYYY or DD/MM/YYYY)
+    return /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(value);
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -106,6 +112,8 @@ function updateAccordionContent(sheetName, data) {
                 cellElement.style.color = '#00BFFF'; // City names in bright blue
             } else if (isPersonName(cellData)) {
                 cellElement.style.color = 'silver'; // Shannon McCool and other person names in silver
+            } else if (isDate(cellData)) {
+                cellElement.style.color = 'white'; // Dates in white
             } else if (isNumericOrSpecial(cellData)) {
                 cellElement.style.color = 'green'; // Numbers, percentages, or special symbols in green
             } else if (sheetName === "Daily" && isDailyDataTerm(cellData)) {
