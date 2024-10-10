@@ -6,10 +6,15 @@ body {
     color: #E0E0E0; /* Light text for contrast */
 }
 
+/* Scrollable container */
+.scroll-container {
+    overflow-x: auto; /* Allows horizontal scrolling */
+}
+
 /* Heading */
 h1 {
     text-align: center;
-    color: #BB86FC; /* Contemporary purple accent */
+    color: #00BFFF; /* Bright Blue for main heading */
 }
 
 /* Collapsible Buttons */
@@ -54,12 +59,21 @@ th, td {
 
 th {
     background-color: #1f1f1f;
-    color: #BB86FC;
+    color: #00BFFF; /* Bright Blue for column headers */
 }
 
 td {
     background-color: #2a2a2a;
     color: #E0E0E0;
+}
+
+/* Special color handling for "Daily" tab */
+.daily-header {
+    color: red; /* Red for headers and labels */
+}
+
+.daily-data {
+    color: green; /* Green for numbers and names */
 }
 
 div {
