@@ -62,7 +62,21 @@ function makeValidSelector(sheetName) {
 function updateAccordionContent(sheetName, data) {
     const validSelector = makeValidSelector(sheetName);
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
+    
+    // Check if the contentDiv exists before proceeding
+    if (!contentDiv) {
+        console.error(`Accordion panel for ${sheetName} not found.`);
+        return;
+    }
+
     const table = contentDiv.querySelector('table');
+    
+    // Check if the table exists inside the panel
+    if (!table) {
+        console.error(`Table for ${sheetName} not found inside the panel.`);
+        return;
+    }
+
     table.innerHTML = ''; // Clear existing data
 
     data.forEach((row, rowIndex) => {
