@@ -1,58 +1,120 @@
-/* General styles for tables */
-.data-table {
-    width: 100%; /* Ensure table takes full width */
-    border-collapse: collapse;
-    font-size: 14px;
+/* Basic body styling */
+body {
+    background-color: #222;  /* Dark background */
+    color: white;  /* Default text color */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
-/* Table headers and cells */
-.data-table th, .data-table td {
-    border: 1px solid #333;
-    padding: 10px;
-    text-align: left;
-}
-
-/* Scrollable container for horizontal scrolling */
-.scroll-container {
-    overflow-x: auto; /* Enables horizontal scrolling */
-    width: 100%; /* Makes it responsive */
-    white-space: nowrap; /* Prevents wrapping of table content */
-}
-
-/* Accordion styling */
+/* Styling for the accordion button */
 .accordion {
-    background-color: #444;
-    color: #fff;
+    background-color: #333;
+    color: white;
     cursor: pointer;
     padding: 10px;
     width: 100%;
     text-align: left;
     border: none;
     outline: none;
-    transition: background-color 0.4s ease;
+    font-size: 18px;
+    transition: 0.4s;
+    margin-bottom: 5px;
 }
 
-.accordion.active, .accordion:hover {
+/* Change background on hover */
+.accordion:hover {
     background-color: #555;
 }
 
-/* Accordion panel styling */
+/* Active (open) accordion panel styling */
+.accordion.active {
+    background-color: #666;
+}
+
+/* Panel to contain the table (initially hidden) */
 .panel {
+    padding: 0;
     display: none;
-    background-color: #333;
-    padding: 10px;
     overflow: hidden;
+    background-color: #222;
+    margin-bottom: 10px;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .data-table th, .data-table td {
-        font-size: 12px; /* Smaller font size for smaller screens */
-    }
+/* Scrollable container for large tables */
+.scroll-container {
+    overflow-x: auto;
+    width: 100%;
 }
 
-@media (max-width: 480px) {
-    .data-table th, .data-table td {
-        font-size: 10px; /* Further reduce font size for mobile phones */
-    }
+/* Table styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #555;
+    padding: 10px;
+    text-align: left;
+}
+
+/* Header row styling */
+.data-table th {
+    background-color: #444;
+    color: yellow;
+}
+
+/* Default text color in table cells */
+.data-table td {
+    color: white;
+}
+
+/* Specific colors that are dynamically applied via script.js */
+td[data-color="red"] {
+    color: red;
+}
+
+td[data-color="green"] {
+    color: #00FF00;  /* Bright green */
+}
+
+td[data-color="white"] {
+    color: white;
+}
+
+/* Ensure smooth scrolling for better usability */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Optional: make accordion buttons sticky for large tables */
+.sticky-accordion {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Styling for h1 and other headers */
+h1 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+/* Additional table styling for better visual clarity */
+.data-table td, .data-table th {
+    text-align: left;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #333;
+}
+
+.data-table tr:nth-child(odd) {
+    background-color: #222;
 }
