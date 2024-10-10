@@ -25,32 +25,34 @@ const cityNames = [
     "Baltimore", "Westbury", "Persephone"
 ];
 
-// Important keywords that should be highlighted in yellow (e.g., top row text or labels next to data)
-const importantTerms = [
-    "ISR", "5 min answer rate", "STC", 
-    "showrate-3 day", "set rate trend -2 day", 
-    "on calendar", "Total"
+// Important keywords for the "Daily Data" tab that should be in yellow
+const dailyDataTerms = [
+    "Daily Sets", "Sets Needed", "Next Days Needed", "On Calendar", 
+    "Sets", "Answers", "5-Minute Answer Rate", "Set Rate", "Calls", 
+    "Productivity", "Framework", "Total On Calendar", "Needed"
 ];
+
+// Person names that need to be in silver (Shannon McCool as well)
+const personNames = ["Shannon McCool"]; // List other names if needed
 
 // Function to check if a value is a city name
 function isCity(value) {
     return cityNames.includes(value);
 }
 
-// Function to check if a value is a person's name (capitalized names)
+// Function to check if a value is a person's name (capitalized names, including Shannon McCool)
 function isPersonName(value) {
-    return /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
+    return personNames.includes(value) || /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
 }
 
 // Function to check if a value is a numerical value or includes special symbols that should be in green
 function isNumericOrSpecial(value) {
-    // Check if the value is numeric or includes £, /, !, or %
     return !isNaN(parseFloat(value)) || /[£\/!%]/.test(value);
 }
 
-// Function to check if a value contains important terms for yellow highlighting
-function isImportantTerm(value) {
-    return importantTerms.some(term => value.toLowerCase().includes(term.toLowerCase()));
+// Function to check if a value should be yellow on the "Daily Data" tab
+function isDailyDataTerm(value) {
+    return dailyDataTerms.some(term => value.toLowerCase().includes(term.toLowerCase()));
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -103,13 +105,13 @@ function updateAccordionContent(sheetName, data) {
             } else if (isCity(cellData)) {
                 cellElement.style.color = '#00BFFF'; // City names in bright blue
             } else if (isPersonName(cellData)) {
-                cellElement.style.color = 'silver'; // Person names in silver
+                cellElement.style.color = 'silver'; // Shannon McCool and other person names in silver
             } else if (isNumericOrSpecial(cellData)) {
                 cellElement.style.color = 'green'; // Numbers, percentages, or special symbols in green
-            } else if (isImportantTerm(cellData)) {
-                cellElement.style.color = 'yellow'; // Important terms next to data in yellow
+            } else if (sheetName === "Daily" && isDailyDataTerm(cellData)) {
+                cellElement.style.color = 'yellow'; // Important "Daily Data" terms in yellow
             } else {
-                cellElement.style.color = 'yellow'; // Default text next to data in yellow
+                cellElement.style.color = 'yellow'; // Default text in yellow (for labels)
             }
 
             cellElement.textContent = cellData;
