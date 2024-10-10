@@ -1,6 +1,6 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
-const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
+const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
+const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
 
 // Manually specified list of all sheet names (tabs)
 const sheetNames = [
@@ -25,7 +25,7 @@ function isNumeric(value) {
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName); 
+    const encodedSheetName = encodeURIComponent(sheetName);
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
     const response = await fetch(url);
     if (!response.ok) {
@@ -36,38 +36,32 @@ async function fetchSheetData(sheetName) {
     return data.values || [];
 }
 
-// Function to sanitize the sheet name for use in IDs and selectors
-function sanitizeSheetName(sheetName) {
-    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
-}
-
 // Function to apply percentage color logic
-function applyPercentageColor(cellText, term, nameCell) {
+function applyPercentageColor(cellText, term, nameCell, currentNameColor) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
-    let color = 'white';  // Default color for percentages and names
-    
-    // Ensure ISR name is white by default
-    nameCell.style.color = 'white';  // Default ISR names to white
+    let color = 'white';  // Default color for percentages
 
     if (term === "5-Minute Answer Rate") {
         if (percentageValue < 10) {
             color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
+            nameCell.style.color = 'red';  // Turn the name red if it's below 10%
         } else if (percentageValue > 20) {
-            color = '#00FF00';  // Set percentage to bright green
+            color = '#00FF00';  // Set percentage to green if above 20%
+            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white if it's not already red
         }
     }
 
     if (term === "Set Rate") {
         if (percentageValue < 30) {
             color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
+            nameCell.style.color = 'red';  // Turn the name red if it's below 30%
         } else if (percentageValue > 45) {
-            color = '#00FF00';  // Set percentage to bright green
+            color = '#00FF00';  // Set percentage to green if above 45%
+            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white if it's not already red
         }
     }
 
-    return color;  // Return the color for the percentage
+    return color;  // Return the percentage color
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -81,7 +75,6 @@ function updateAccordionContent(sheetName, data) {
     }
 
     const table = contentDiv.querySelector('table');
-    
     if (!table) {
         console.error(`Table for ${sheetName} not found inside the panel.`);
         return;
@@ -91,29 +84,25 @@ function updateAccordionContent(sheetName, data) {
 
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
+        let nameCell;
+
         row.forEach((cellData, cellIndex) => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             if (rowIndex === 0) {
                 cellElement.style.color = 'yellow';  // Header row (labels should be yellow)
             } else {
-                const isNameCell = (cellIndex === 0);
-                const isPercentage = cellData.includes('%');
-                
-                if (isNameCell) {
-                    cellElement.style.color = 'white';  // Default ISR names to white
+                if (cellIndex === 0) {
+                    // Name cell logic
+                    nameCell = cellElement;
+                    nameCell.style.color = 'white';  // Default ISR names to white
                 }
 
-                if (isPercentage) {
-                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
-
-                    if (row.includes("5-Minute Answer Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
-                    } else if (row.includes("Set Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
-                    } else {
-                        cellElement.style.color = 'white';  // Default to white if no special condition applies
-                    }
+                if (cellData.includes('%')) {
+                    // If it's a percentage, apply the color logic based on thresholds
+                    const currentNameColor = nameCell.style.color;
+                    const term = row.includes("5-Minute Answer Rate") ? "5-Minute Answer Rate" : "Set Rate";
+                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, currentNameColor);
                 } else if (isNumeric(cellData)) {
                     cellElement.style.color = 'white';  // Numbers should be white
                 } else {
@@ -130,9 +119,9 @@ function updateAccordionContent(sheetName, data) {
 
 // Function to create an accordion-style section initially
 function createAccordionSection(sheetName, data) {
-    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
+    const validSelector = sanitizeSheetName(sheetName);
     const container = document.createElement('div');
-    container.id = validSelector;  // Set unique ID for each accordion section
+    container.id = validSelector;
 
     const button = document.createElement('button');
     button.classList.add('accordion');
