@@ -18,9 +18,14 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Function to check if a value is a name
+// Function to check if a value is a name (capitalized, not numbers)
 function isName(value) {
     return /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(value);
+}
+
+// Function to check if a value contains both wording and numbers
+function containsWording(value) {
+    return /[A-Za-z]+/.test(value) && /\d+/.test(value) && value !== "#DIV/0!";
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -34,6 +39,24 @@ async function fetchSheetData(sheetName) {
     }
     const data = await response.json();
     return data.values || [];
+}
+
+// Function to save accordion state (open/closed)
+function saveAccordionState() {
+    const states = Array.from(document.querySelectorAll('.accordion')).map(btn => btn.classList.contains('active'));
+    localStorage.setItem('accordionState', JSON.stringify(states));
+}
+
+// Function to restore accordion state (open/closed)
+function restoreAccordionState() {
+    const states = JSON.parse(localStorage.getItem('accordionState')) || [];
+    const buttons = document.querySelectorAll('.accordion');
+    states.forEach((state, i) => {
+        if (state) {
+            buttons[i].classList.add('active');
+            buttons[i].nextElementSibling.style.display = 'block';
+        }
+    });
 }
 
 // Function to create an accordion-style section
@@ -53,16 +76,16 @@ function createAccordionSection(sheetName, data) {
         const rowElement = document.createElement('tr');
         row.forEach(cellData => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
-            
+
             // Apply colors based on the content
             if (rowIndex === 0) {
                 cellElement.style.color = 'white'; // Header in white
             } else if (isName(cellData)) {
                 cellElement.style.color = 'orange'; // Names in orange
-            } else if (isNaN(parseFloat(cellData)) && !cellData.includes('%') && !/[£#\/]/.test(cellData)) {
-                cellElement.style.color = 'silver'; // Text (non-numerical, non-name) in silver
+            } else if (containsWording(cellData) || isNaN(parseFloat(cellData)) && cellData !== "#DIV/0!") {
+                cellElement.style.color = 'silver'; // Text (with wording and numbers) in silver
             } else {
-                cellElement.style.color = 'green'; // Numbers, percentages, £, /, etc., in green
+                cellElement.style.color = 'green'; // Numbers, percentages, and symbols in green
             }
 
             cellElement.textContent = cellData;
@@ -80,6 +103,7 @@ function createAccordionSection(sheetName, data) {
         this.classList.toggle('active');
         const panel = this.nextElementSibling;
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        saveAccordionState(); // Save state when accordion is toggled
     });
 }
 
@@ -90,9 +114,10 @@ async function loadAllSheetsData() {
         const sheetData = await fetchSheetData(sheetName);
         createAccordionSection(sheetName, sheetData);
     }
+    restoreAccordionState(); // Restore accordion open/close state after loading
 }
 
-// Set up auto-fetching every two minutes
+// Set up auto-fetching every two minutes, preserving the accordion state
 function autoFetchData() {
     loadAllSheetsData();
     setInterval(loadAllSheetsData, 120000); // Every 2 minutes
