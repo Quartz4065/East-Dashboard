@@ -42,31 +42,43 @@ function sanitizeSheetName(sheetName) {
 }
 
 // Function to apply percentage color logic
-function applyPercentageColor(cellText, term, nameCell, cityCell, currentNameColor, currentCityColor) {
+function applyPercentageColor(cellText, term, nameCell, cityCell, allNameCells, currentNameColor, currentCityColor) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
     let color = 'white';  // Default color for percentages
 
     if (term === "5-Minute Answer Rate") {
-        if (percentageValue < 5) {  // Change from 10% to 5%
+        if (percentageValue < 5) {
             color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Turn the name red if it's below 5%
-            cityCell.style.color = 'red';  // Turn the city red if it's below 5%
-        } else if (percentageValue > 20) {
-            color = '#00FF00';  // Set percentage to green if above 20%
-            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white if it's not already red
-            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white if it's not already red
+            nameCell.style.color = 'red';  // Turn the name red if below 5%
+            allNameCells.forEach(cell => {
+                if (cell.style.color === 'red') {
+                    cityCell.style.color = 'red';  // Turn the city red if any person is red
+                }
+            });
+        } else if (percentageValue >= 5 && percentageValue <= 10) {
+            color = 'white';  // Stay white if between 5% and 10%
+            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
+            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
+        } else if (percentageValue > 10) {
+            color = '#00FF00';  // Set percentage to green if above 10%
+            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
+            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
         }
     }
 
     if (term === "Set Rate") {
-        if (percentageValue < 25) {  // Change from 30% to 25%
+        if (percentageValue < 25) {
             color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Turn the name red if it's below 25%
-            cityCell.style.color = 'red';  // Turn the city red if it's below 25%
+            nameCell.style.color = 'red';  // Turn the name red if below 25%
+            allNameCells.forEach(cell => {
+                if (cell.style.color === 'red') {
+                    cityCell.style.color = 'red';  // Turn the city red if any person is red
+                }
+            });
         } else if (percentageValue > 45) {
             color = '#00FF00';  // Set percentage to green if above 45%
-            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white if it's not already red
-            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white if it's not already red
+            if (currentNameColor !== 'red') nameCell.style.color = 'white';  // Keep the name white unless it's red
+            if (currentCityColor !== 'red') cityCell.style.color = 'white';  // Keep the city white unless it's red
         }
     }
 
@@ -91,6 +103,8 @@ function updateAccordionContent(sheetName, data) {
 
     table.innerHTML = '';  // Clear existing data
 
+    const nameCells = [];
+
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         let nameCell;
@@ -105,6 +119,7 @@ function updateAccordionContent(sheetName, data) {
                 if (cellIndex === 0) {
                     // Name cell logic
                     nameCell = cellElement;
+                    nameCells.push(nameCell);
                     nameCell.style.color = 'white';  // Default ISR names to white
                 }
 
@@ -119,7 +134,7 @@ function updateAccordionContent(sheetName, data) {
                     const currentNameColor = nameCell.style.color;
                     const currentCityColor = cityCell.style.color;
                     const term = row.includes("5-Minute Answer Rate") ? "5-Minute Answer Rate" : "Set Rate";
-                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, cityCell, currentNameColor, currentCityColor);
+                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, cityCell, nameCells, currentNameColor, currentCityColor);
                 } else if (isNumeric(cellData)) {
                     cellElement.style.color = 'white';  // Numbers should be white
                 } else {
@@ -190,7 +205,9 @@ async function updateAllSheetsData() {
     }
 }
 
-// Set up auto-fetching every two minutes, updating the content only
+// Set up auto-fetching
+
+ every two minutes, updating the content only
 function autoFetchData() {
     loadAllSheetsData();  // Initial load
     setInterval(updateAllSheetsData, 120000);  // Update every 2 minutes
