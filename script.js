@@ -18,6 +18,12 @@ const sheetNames = [
     "Answer Rates"
 ];
 
+// Default Colors
+let headerColor = '#FF0000'; // Red
+let nameColor = '#FFA500'; // Orange
+let dataColor = '#008000'; // Green
+let textColor = '#C0C0C0'; // Silver
+
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
     const encodedSheetName = encodeURIComponent(sheetName); // Encode the sheet name to handle spaces and special characters
@@ -51,25 +57,21 @@ function createCollapsibleSection(sheetName, data) {
     const table = document.createElement('table');
     table.style.width = '100%'; 
 
-    // Apply special color-coding for the "Daily" tab
+    // Apply custom color-coding based on user selection
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
         row.forEach(cellData => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
             
-            // Custom formatting for the "Daily" tab
-            if (sheetName === 'Daily') {
-                if (rowIndex === 0) {
-                    cellElement.style.color = 'red'; // Headers and labels in Red
-                } else if (isName(cellData)) {
-                    cellElement.style.color = 'orange'; // Names in Orange
-                } else if (cellData === '5 Min Answer Rate') {
-                    cellElement.style.color = 'silver'; // Special label "5 Min Answer Rate" in Silver
-                } else if (isNaN(parseFloat(cellData)) && !cellData.includes('%')) {
-                    cellElement.style.color = 'silver'; // Locations and other words in Silver
-                } else {
-                    cellElement.style.color = 'green'; // Numbers and percentages in Green
-                }
+            // Apply colors dynamically
+            if (rowIndex === 0) {
+                cellElement.style.color = headerColor; // Header color selected by the user
+            } else if (isName(cellData)) {
+                cellElement.style.color = nameColor; // Name color selected by the user
+            } else if (isNaN(parseFloat(cellData)) && !cellData.includes('%')) {
+                cellElement.style.color = textColor; // Text color selected by the user (locations, other words)
+            } else {
+                cellElement.style.color = dataColor; // Data color selected by the user (numbers, percentages)
             }
 
             cellElement.textContent = cellData;
@@ -102,6 +104,22 @@ async function loadAllSheetsData() {
         createCollapsibleSection(sheetName, sheetData); 
     }
 }
+
+// Function to apply selected colors
+function applySelectedColors() {
+    // Get selected colors from color pickers
+    headerColor = document.getElementById('header-color').value;
+    nameColor = document.getElementById('name-color').value;
+    dataColor = document.getElementById('data-color').value;
+    textColor = document.getElementById('text-color').value;
+
+    // Clear existing data and reload with new colors
+    document.getElementById('data-container').innerHTML = '';
+    loadAllSheetsData(); // Reload the data with the new colors applied
+}
+
+// Add event listener for the "Apply Colors" button
+document.getElementById('apply-colors').addEventListener('click', applySelectedColors);
 
 // Load all data when the page loads
 window.onload = loadAllSheetsData;
