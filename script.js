@@ -42,29 +42,32 @@ function sanitizeSheetName(sheetName) {
 }
 
 // Function to apply color based on percentage rules for "5-Minute Answer Rate" and "Set Rate"
-// and also trigger the name change to red if the percentage turns red
+// Also, this triggers the employee name to turn red if either percentage condition is not met
 function applyPercentageColor(cellText, term, nameCell) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
-    
+    let color = 'white'; // Default color for percentages and names
+
+    // Handling 5-Minute Answer Rate
     if (term === "5-Minute Answer Rate") {
         if (percentageValue < 10) {
             nameCell.style.color = 'red'; // Turn person's name red if below 10%
-            return 'red'; // Bright red for percentage
+            color = 'red'; // Bright red for percentage
         } else if (percentageValue > 20) {
-            return '#00FF00'; // Bright green if above 20%
+            color = '#00FF00'; // Bright green for percentage above 20%
         }
     }
 
+    // Handling Set Rate
     if (term === "Set Rate") {
         if (percentageValue < 25) {
             nameCell.style.color = 'red'; // Turn person's name red if below 25%
-            return 'red'; // Bright red for percentage
+            color = 'red'; // Bright red for percentage
         } else if (percentageValue > 45) {
-            return '#00FF00'; // Bright green if above 45%
+            color = '#00FF00'; // Bright green for percentage above 45%
         }
     }
 
-    return 'white'; // Default to white for all other numbers
+    return color; // Return the calculated color
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -97,12 +100,18 @@ function updateAccordionContent(sheetName, data) {
                 // Header row (labels should be yellow)
                 cellElement.style.color = 'yellow';
             } else {
-                if (cellIndex === 0) {
-                    // Person's name (default to white)
+                const isNameCell = (cellIndex === 0);
+                const isPercentage = cellData.includes('%');
+                
+                // Handle name cell (default to white)
+                if (isNameCell) {
                     cellElement.style.color = 'white';
-                } else if (cellData.includes('%')) {
+                }
+
+                if (isPercentage) {
                     // If it's a percentage, apply the color logic based on thresholds
                     const nameCell = rowElement.children[0]; // The name cell is the first in the row
+
                     if (row.includes("5-Minute Answer Rate")) {
                         cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
                     } else if (row.includes("Set Rate")) {
