@@ -1,18 +1,22 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; // Provided API Key
+const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJbqxxOzNqkvNA0VbKl3apzOA'; // Provided API Key
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; // Provided Spreadsheet ID
 
-// Function to fetch the list of sheet names (tab names)
-async function fetchSheetNames() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        console.error('Failed to fetch sheet names:', response.statusText);
-        return [];
-    }
-    const data = await response.json();
-    return data.sheets.map(sheet => sheet.properties.title); // Return all sheet names
-}
+// Manually specified list of all sheet names (tabs)
+const sheetNames = [
+    "Daily", 
+    "Previous Day", 
+    "Saturday", 
+    "Leaderboard", 
+    "Commission", 
+    "PIPS and Benching", 
+    "Today's No Shows", 
+    "Keepy Uppy", 
+    "Critical Numbers", 
+    "MTD Shows", 
+    "Incident Tracker", 
+    "Answer Rates"
+];
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
@@ -30,7 +34,7 @@ async function fetchSheetData(sheetName) {
 function displaySheetData(sheetName, data) {
     const container = document.createElement('div');
     const heading = document.createElement('h2');
-    heading.textContent = `${sheetName} Data`;
+    heading.textContent = `${sheetName} Data`; // Displays the sheet name as the heading
     container.appendChild(heading);
 
     const table = document.createElement('table');
@@ -42,7 +46,7 @@ function displaySheetData(sheetName, data) {
         row.forEach(cellData => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td'); // Use <th> for header, <td> for data
             cellElement.textContent = cellData;
-            rowElement.appendChild(cellElement);
+            rowElement.append.appendChild(cellElement);
         });
         table.appendChild(rowElement);
     });
@@ -51,11 +55,10 @@ function displaySheetData(sheetName, data) {
     document.body.appendChild(container); // Append the table to the body of the page
 }
 
-// Function to load data from all the sheets (tabs) in the spreadsheet
+// Load all data from all manually specified sheets (tabs)
 async function loadAllSheetsData() {
-    const sheetNames = await fetchSheetNames(); // Fetch all sheet names
     for (const sheetName of sheetNames) {
-        const sheetData = await fetchSheetData(sheetName); // Fetch data for each sheet
+        const sheetData = await fetchSheetData(sheetName); // Fetch data for each tab
         displaySheetData(sheetName, sheetData); // Display the data in a table
     }
 }
