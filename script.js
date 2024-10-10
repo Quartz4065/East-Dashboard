@@ -1,5 +1,5 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJbqxxOzNqkvNA0VbKl3apzOA'; // Provided API Key
+const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; // Provided API Key
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; // Provided Spreadsheet ID
 
 // Manually specified list of all sheet names (tabs)
@@ -20,18 +20,8 @@ const sheetNames = [
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA}/values/${"Daily", 
-    "Previous Day", 
-    "Saturday", 
-    "Leaderboard", 
-    "Commission", 
-    "PIPS and Benching", 
-    "Today's No Shows", 
-    "Keepy Uppy", 
-    "Critical Numbers", 
-    "MTD Shows", 
-    "Incident Tracker", 
-    "Answer Rates"}?key=${AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJbqxxOzNqkvNA0VbKl3apzOA}`;
+    const encodedSheetName = encodeURIComponent(sheetName); // Encode the sheet name to handle spaces and special characters
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
     const response = await fetch(url);
     if (!response.ok) {
         console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
@@ -57,7 +47,7 @@ function displaySheetData(sheetName, data) {
         row.forEach(cellData => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td'); // Use <th> for header, <td> for data
             cellElement.textContent = cellData;
-            rowElement.append.appendChild(cellElement);
+            rowElement.appendChild(cellElement);
         });
         table.appendChild(rowElement);
     });
