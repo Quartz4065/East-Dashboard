@@ -59,7 +59,7 @@ function applyPercentageColor(cellText, term, nameCell) {
     }
 
     if (term === "Set Rate") {
-        if (percentageValue < 25) {
+        if (percentageValue < 30) {
             color = 'red';  // Set percentage to red
             nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
         } else if (percentageValue > 45) {
@@ -75,7 +75,6 @@ function updateAccordionContent(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName);  // Sanitize the selector
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
     
-    // Check if the contentDiv exists before proceeding
     if (!contentDiv) {
         console.error(`Accordion panel for ${sheetName} not found.`);
         return;
@@ -83,7 +82,6 @@ function updateAccordionContent(sheetName, data) {
 
     const table = contentDiv.querySelector('table');
     
-    // Check if the table exists inside the panel
     if (!table) {
         console.error(`Table for ${sheetName} not found inside the panel.`);
         return;
@@ -97,19 +95,16 @@ function updateAccordionContent(sheetName, data) {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             if (rowIndex === 0) {
-                // Header row (labels should be yellow)
-                cellElement.style.color = 'yellow';
+                cellElement.style.color = 'yellow';  // Header row (labels should be yellow)
             } else {
                 const isNameCell = (cellIndex === 0);
                 const isPercentage = cellData.includes('%');
                 
-                // Handle the name cell (default to white)
                 if (isNameCell) {
                     cellElement.style.color = 'white';  // Default ISR names to white
                 }
 
                 if (isPercentage) {
-                    // If it's a percentage, apply the color logic based on thresholds
                     const nameCell = rowElement.children[0];  // The name cell is the first in the row
 
                     if (row.includes("5-Minute Answer Rate")) {
@@ -120,11 +115,9 @@ function updateAccordionContent(sheetName, data) {
                         cellElement.style.color = 'white';  // Default to white if no special condition applies
                     }
                 } else if (isNumeric(cellData)) {
-                    // Numbers should be white
-                    cellElement.style.color = 'white';
+                    cellElement.style.color = 'white';  // Numbers should be white
                 } else {
-                    // Default text should be yellow
-                    cellElement.style.color = 'yellow';
+                    cellElement.style.color = 'yellow';  // Default text should be yellow
                 }
             }
 
@@ -148,15 +141,12 @@ function createAccordionSection(sheetName, data) {
     const content = document.createElement('div');
     content.classList.add('panel');
 
-    // Create scrollable container for the table
     const scrollContainer = document.createElement('div');
     scrollContainer.classList.add('scroll-container');
 
-    // Create the table
     const table = document.createElement('table');
     table.classList.add('data-table');
 
-    // Append the table to the scrollable container
     scrollContainer.appendChild(table);
     content.appendChild(scrollContainer);
     container.appendChild(button);
