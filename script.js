@@ -55,8 +55,8 @@ function createCollapsibleSection(sheetName, data) {
             if (sheetName === 'Daily') {
                 if (rowIndex === 0) {
                     cellElement.style.color = 'red'; // Headers and labels in Red
-                } else if (isNaN(cellData) && !cellData.includes('%')) {
-                    cellElement.style.color = 'silver'; // Words (not numbers or percentages) in Silver
+                } else if (isNaN(parseFloat(cellData)) && !cellData.includes('%')) {
+                    cellElement.style.color = 'silver'; // Words, names, locations in Silver
                 } else {
                     cellElement.style.color = 'green'; // Numbers and percentages in Green
                 }
