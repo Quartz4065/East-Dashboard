@@ -1,87 +1,45 @@
-/* Universal dark theme with jet black background and modern typography */
+/* General styling */
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #0d0d0d;
-    color: #f4f4f9;
-    margin: 0;
-    padding: 20px;
+    font-family: Arial, sans-serif;
 }
 
 h1 {
     text-align: center;
-    color: #ffffff;
-    font-weight: 300;
-    letter-spacing: 2px;
 }
 
-/* Dashboard container for cards */
-.dashboard-container {
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Threshold-based styling */
+.high {
+    color: red;
+}
+
+.low {
+    color: green;
+}
+
+/* Dashboard layout */
+#dashboard {
     display: flex;
+    justify-content: space-around;
     flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
 }
 
-/* Each center/city card */
-.city-card {
-    background-color: #1a1a1a;
-    border-radius: 10px;
-    padding: 20px;
-    width: 300px;
-    color: #f4f4f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-/* Title for each center/city */
-.city-card h2 {
-    text-align: center;
-    color: #f4f4f9;
-    margin-bottom: 20px;
-    font-weight: 400;
-}
-
-/* Individual person info inside the card */
-.person-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-/* Name of the person */
-.person-info .person-name {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ffffff;
-}
-
-/* Data section for each metric */
-.person-info .person-metrics {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Style for metrics (e.g., 5 Min Answer Rate, Set Rate) */
-.person-info .metric {
-    color: white;
-}
-
-/* Colors for different conditions */
-.metric-red {
-    color: #ff4d4d;
-}
-
-.metric-green {
-    color: #00ff00;
-}
-
-.metric-white {
-    color: #f4f4f9;
-}
-
-/* Responsive layout */
-@media (max-width: 768px) {
-    .city-card {
-        width: 100%;
-    }
+#city-data, #individual-data {
+    flex: 1;
+    min-width: 45%;
 }
