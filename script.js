@@ -1,6 +1,6 @@
 // Your Google Sheets API Key and Spreadsheet ID
 const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
-const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
+const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
 
 // Manually specified list of all sheet names (tabs)
 const sheetNames = [
@@ -25,7 +25,7 @@ function isNumeric(value) {
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName);
+    const encodedSheetName = encodeURIComponent(sheetName); 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
     const response = await fetch(url);
     if (!response.ok) {
@@ -41,54 +41,33 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage and value-based color logic for multiple columns
-function applyColumnColorLogic(cellText, term, nameCell, cityCell, cityGroup = []) {
-    let color = 'white';  // Default color for all columns
-    const value = parseFloat(cellText.replace('%', '').replace(/,/g, ''));  // Remove % and commas
+// Function to apply percentage color logic
+function applyPercentageColor(cellText, term, nameCell) {
+    const percentageValue = parseFloat(cellText.replace('%', ''));
+    let color = 'white';  // Default color for percentages and names
+    
+    // Ensure ISR name is white by default
+    nameCell.style.color = 'white';  // Default ISR names to white
 
     if (term === "5-Minute Answer Rate") {
-        if (value < 5) {
-            color = 'red';
-            nameCell.style.color = 'red';  // Turn the name red
-            cityCell.style.color = 'red';  // Turn the city red
-        } else if (value >= 5 && value < 10) {
-            color = 'white';  // Keep percentage white between 5% and 9.99%
-        } else if (value >= 10) {
-            color = '#00FF00';  // Turn green if 10% or more
+        if (percentageValue < 5) {
+            color = 'red';  // Set percentage to red
+            nameCell.style.color = 'red';  // Set ISR name to red if percentage is below 5%
+        } else if (percentageValue >= 10) {
+            color = '#00FF00';  // Set percentage to bright green if above 10%
         }
     }
 
     if (term === "Set Rate") {
-        if (value < 25) {
-            color = 'red';  // Below 25% turns red
-            nameCell.style.color = 'red';  // Turn the name red
-            cityCell.style.color = 'red';  // Turn the city red
-        } else if (value >= 25 && value < 40) {
-            color = 'white';  // Between 25% and 39.99% stays white
-        } else if (value >= 40) {
-            color = '#00FF00';  // Above 40% turns green
+        if (percentageValue < 25) {
+            color = 'red';  // Set percentage to red if below 25%
+            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
+        } else if (percentageValue >= 40) {
+            color = '#00FF00';  // Set percentage to bright green if above 40%
         }
     }
 
-    if (term === "Calls") {
-        if (value < 200) {
-            color = 'red';  // Below 200 calls turns red
-        } else if (value >= 200 && value <= 280) {
-            color = 'white';  // Between 200 and 280 stays white
-        } else if (value > 280) {
-            color = '#00FF00';  // Above 280 calls turns green
-        }
-    }
-
-    if (term === "Showrate - 3 Day") {
-        if (value < 70) {
-            color = 'red';  // Below 70% show rate turns red
-        } else if (value >= 70) {
-            color = '#00FF00';  // 70% or higher turns green
-        }
-    }
-
-    return color;
+    return color;  // Return the color for the percentage
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -96,12 +75,15 @@ function updateAccordionContent(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName);  // Sanitize the selector
     const contentDiv = document.querySelector(`#${validSelector} .panel`);
     
+    // Check if the contentDiv exists before proceeding
     if (!contentDiv) {
         console.error(`Accordion panel for ${sheetName} not found.`);
         return;
     }
 
     const table = contentDiv.querySelector('table');
+    
+    // Check if the table exists inside the panel
     if (!table) {
         console.error(`Table for ${sheetName} not found inside the panel.`);
         return;
@@ -109,50 +91,40 @@ function updateAccordionContent(sheetName, data) {
 
     table.innerHTML = '';  // Clear existing data
 
-    const cityGroups = {};  // Track name and city cells by city for group color logic
-
     data.forEach((row, rowIndex) => {
         const rowElement = document.createElement('tr');
-        let nameCell;
-        let cityCell;
-
         row.forEach((cellData, cellIndex) => {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             if (rowIndex === 0) {
-                cellElement.style.color = 'yellow';  // Header row (labels should be yellow)
+                // Header row (labels should be yellow)
+                cellElement.style.color = 'yellow';
             } else {
-                if (cellIndex === 0) {
-                    // Name cell logic
-                    nameCell = cellElement;
-                    nameCell.style.color = 'white';  // Default ISR names to white
+                const isNameCell = (cellIndex === 0);
+                const isPercentage = cellData.includes('%');
+                
+                // Handle the name cell (default to white)
+                if (isNameCell) {
+                    cellElement.style.color = 'white';  // Default ISR names to white
                 }
 
-                if (cellIndex === 1) {
-                    // City cell logic
-                    cityCell = cellElement;
-                    cityCell.style.color = 'white';  // Default city names to white
+                if (isPercentage) {
+                    // If it's a percentage, apply the color logic based on thresholds
+                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
 
-                    const city = cityCell.textContent.trim();
-                    if (!cityGroups[city]) {
-                        cityGroups[city] = [];
-                    }
-                    cityGroups[city].push(nameCell);
-                }
-
-                // Check and apply the color logic for each relevant column
-                if (["5-Minute Answer Rate", "Set Rate", "Calls", "Showrate - 3 Day"].includes(row[0])) {
-                    const term = row[0];  // The name of the column being processed
-                    cellElement.style.color = applyColumnColorLogic(cellData, term, nameCell, cityCell, cityGroups[cityCell.textContent.trim()]);
-                } else if (isNumeric(cellData)) {
-                    cellElement.style.color = 'white';  // Default white for numeric values
-                } else {
-                    // Keep "Total" white, regardless of any logic
-                    if (cellData.toLowerCase() === 'total') {
-                        cellElement.style.color = 'white';
+                    if (row.includes("5-Minute Answer Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
+                    } else if (row.includes("Set Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
                     } else {
-                        cellElement.style.color = 'yellow';  // Default text should be yellow
+                        cellElement.style.color = 'white';  // Default to white if no special condition applies
                     }
+                } else if (isNumeric(cellData)) {
+                    // Numbers should be white
+                    cellElement.style.color = 'white';
+                } else {
+                    // Default text should be yellow
+                    cellElement.style.color = 'yellow';
                 }
             }
 
@@ -160,13 +132,6 @@ function updateAccordionContent(sheetName, data) {
             rowElement.appendChild(cellElement);
         });
         table.appendChild(rowElement);
-
-        // Add a break after each city group
-        if (rowIndex > 0 && row.some(cellData => cellData.toLowerCase() === 'total')) {
-            const breakRow = document.createElement('tr');
-            breakRow.style.height = '10px'; // Create a visual gap
-            table.appendChild(breakRow);
-        }
     });
 }
 
@@ -174,7 +139,7 @@ function updateAccordionContent(sheetName, data) {
 function createAccordionSection(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
     const container = document.createElement('div');
-    container.id = validSelector;
+    container.id = validSelector;  // Set unique ID for each accordion section
 
     const button = document.createElement('button');
     button.classList.add('accordion');
@@ -183,12 +148,15 @@ function createAccordionSection(sheetName, data) {
     const content = document.createElement('div');
     content.classList.add('panel');
 
+    // Create scrollable container for the table
     const scrollContainer = document.createElement('div');
     scrollContainer.classList.add('scroll-container');
 
+    // Create the table
     const table = document.createElement('table');
     table.classList.add('data-table');
 
+    // Append the table to the scrollable container
     scrollContainer.appendChild(table);
     content.appendChild(scrollContainer);
     container.appendChild(button);
@@ -200,9 +168,7 @@ function createAccordionSection(sheetName, data) {
     button.addEventListener('click', function () {
         this.classList.toggle('active');
         const panel = this.nextElementSibling;
-        panel.style.display
-
- = panel.style.display === 'block' ? 'none' : 'block';
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     });
 }
 
