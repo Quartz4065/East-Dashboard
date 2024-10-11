@@ -1,39 +1,48 @@
+// API Key and Sheet ID provided
 const API_KEY = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60Y';
 const SHEET_ID = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
 
-// Ranges for each sheet in your Google Spreadsheet
-const dailyRange = 'Daily!A1:D10'; // Adjust range as needed
-const leadsRange = 'Leads!A1:D10'; 
-const efficiencyRange = 'Efficiency!A1:D10'; 
+// Ranges for specific sheets within the Google Spreadsheet
+const ranges = {
+    daily: 'Daily!A1:D10',       // Modify range as per your sheet data
+    leads: 'Leads!A1:D10',
+    efficiency: 'Efficiency!A1:D10'
+};
 
-// Load the Google Sheets API client library
+// Load the Google Sheets API client library and initialize it
 function initClient() {
     gapi.client.init({
-        'apiKey': API_KEY,
+        apiKey: API_KEY,
+        discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
     }).then(() => {
-        loadSheetData(dailyRange, 'daily-table');
-        loadSheetData(leadsRange, 'leads-table');
-        loadSheetData(efficiencyRange, 'efficiency-table');
+        // Fetch data for each tab
+        loadSheetData(ranges.daily, 'daily-table');
+        loadSheetData(ranges.leads, 'leads-table');
+        loadSheetData(ranges.efficiency, 'efficiency-table');
+    }).catch(err => {
+        console.error('Error initializing API client', err);
     });
 }
 
-// Load data from a specific sheet range and populate a table
+// Fetch data from the Google Sheets API for a specific range
 function loadSheetData(range, tableId) {
     gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: range,
-    }).then(response => {
+        spreadsheetId: SHEET_ID,
+        range: range
+    }).then((response) => {
         const data = response.result.values;
         renderTable(data, tableId);
+    }).catch((err) => {
+        console.error(`Error fetching data for ${range}:`, err);
     });
 }
 
-// Render the data as an HTML table
+// Render the fetched data as a table
 function renderTable(data, tableId) {
     const table = document.getElementById(tableId);
     let html = '<thead><tr>';
 
-    // Create headers
+    // Create table headers
     data[0].forEach(header => {
         html += `<th>${header}</th>`;
     });
@@ -43,25 +52,20 @@ function renderTable(data, tableId) {
     data.slice(1).forEach(row => {
         html += '<tr>';
         row.forEach(cell => {
-            let formattedCell = formatCell(cell);
-            html += `<td>${formattedCell}</td>`;
+            html += `<td>${formatCell(cell)}</td>`;
         });
         html += '</tr>';
     });
     html += '</tbody>';
-    
+
     table.innerHTML = html;
 }
 
-// Format percentage or dynamic values
+// Format table cells dynamically
 function formatCell(value) {
     const num = parseFloat(value);
     if (!isNaN(num)) {
-        if (num > 0) {
-            return `<span class="positive">${value}</span>`;
-        } else {
-            return `<span class="negative">${value}</span>`;
-        }
+        return num > 0 ? `<span class="positive">${value}</span>` : `<span class="negative">${value}</span>`;
     }
     return value;
 }
@@ -79,5 +83,5 @@ function showTab(tabId) {
     document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
 }
 
-// Load the API and initiate client
+// Load the Google API client
 gapi.load('client', initClient);
