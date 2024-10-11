@@ -2,9 +2,12 @@
 const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
 
+// List of sheet names (tabs) to fetch data from
+const sheetNames = ["Daily", "Previous Day", "Saturday", "Leaderboard", "Commission", "PIPS and Benching", "Today's No Shows", "Keepy Uppy", "Critical Numbers", "MTD Shows", "Incident Tracker", "Answer Rates"];
+
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName); 
+    const encodedSheetName = encodeURIComponent(sheetName);
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
 
     try {
@@ -14,7 +17,7 @@ async function fetchSheetData(sheetName) {
         }
         const data = await response.json();
         console.log(`Fetched data from ${sheetName}:`, data);  // Log fetched data for debugging
-        return data.values || [];  // Returns rows of data from the sheet
+        return data.values || [];
     } catch (error) {
         console.error(`Error fetching data from ${sheetName}:`, error);
         return [];
@@ -23,17 +26,15 @@ async function fetchSheetData(sheetName) {
 
 // Function to apply percentage color logic for "5 Min Answer Rate"
 function apply5MinAnswerRateColor(percentage) {
+    if (typeof percentage !== 'string') return 'metric-white';
     const value = parseFloat(percentage.replace('%', ''));
-    if (value < 5) {
-        return 'metric-red';  // Below 5% turns red
-    } else if (value > 10) {
-        return 'metric-green';  // Above 10% turns green
-    } else {
-        return 'metric-white';  // Between 5% and 10% stays white
-    }
+    if (isNaN(value)) return 'metric-white';
+    if (value < 5) return 'metric-red';  // Below 5% turns red
+    if (value > 10) return 'metric-green';  // Above 10% turns green
+    return 'metric-white';  // Between 5% and 10% stays white
 }
 
-// Function to parse data from Google Sheets
+// Function to parse data from Google Sheets for a given sheet
 function parseSheetData(sheetData) {
     const parsedData = [];
     sheetData.slice(1).forEach(row => {  // Start at index 1 to skip headers
@@ -100,9 +101,13 @@ function createDashboardLayout(data) {
 
 // Function to load data for all sheets initially
 async function loadAllSheetsData() {
-    const sheetData = await fetchSheetData('Daily');  // Load data from "Daily" sheet
-    const parsedData = parseSheetData(sheetData);  // Parse the sheet data
-    createDashboardLayout(parsedData);  // Populate the dashboard with cards
+    let allParsedData = [];
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        const parsedData = parseSheetData(sheetData);  // Parse the sheet data
+        allParsedData = allParsedData.concat(parsedData);  // Append parsed data to the global data array
+    }
+    createDashboardLayout(allParsedData);  // Populate the dashboard with all sheets' data
 }
 
 // Load data when the page loads
