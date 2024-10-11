@@ -1,97 +1,199 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; // Replace with your API Key
-const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';  // Replace with your Spreadsheet ID
+const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
+const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
+
+// Manually specified list of all sheet names (tabs)
+const sheetNames = [
+    "Daily", 
+    "Previous Day", 
+    "Saturday", 
+    "Leaderboard", 
+    "Commission", 
+    "PIPS and Benching", 
+    "Today's No Shows", 
+    "Keepy Uppy", 
+    "Critical Numbers", 
+    "MTD Shows", 
+    "Incident Tracker", 
+    "Answer Rates"
+];
+
+// Function to check if a value is numeric
+function isNumeric(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+}
 
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
-    const encodedSheetName = encodeURIComponent(sheetName);
+    const encodedSheetName = encodeURIComponent(sheetName); 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
-
     const response = await fetch(url);
     if (!response.ok) {
-        throw new Error(`Failed to fetch data from ${sheetName}: ${response.statusText}`);
+        console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
+        return [];
     }
     const data = await response.json();
     return data.values || [];
 }
 
-// Function to display data in a table
-function displayData(data, containerId) {
-    const container = document.getElementById(containerId);
-    const table = document.createElement('table');
+// Function to sanitize the sheet name for use in IDs and selectors
+function sanitizeSheetName(sheetName) {
+    return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
+}
 
-    // Create table headers from the first row of the sheet
-    const headers = data[0];
-    const headerRow = document.createElement('tr');
-    headers.forEach(headerText => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-        headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
+// Function to apply percentage color logic
+function applyPercentageColor(cellText, term, nameCell) {
+    const percentageValue = parseFloat(cellText.replace('%', ''));
+    let color = 'white';  // Default color for percentages and names
+    
+    // Ensure ISR name is white by default
+    nameCell.style.color = 'white';  // Default ISR names to white
 
-    // Create table rows from the remaining data
-    data.slice(1).forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cellData => {
-            const td = document.createElement('td');
-            td.textContent = cellData;
-            tr.appendChild(td);
+    if (term === "5-Minute Answer Rate") {
+        if (percentageValue < 10) {
+            color = 'red';  // Set percentage to red
+            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
+        } else if (percentageValue > 20) {
+            color = '#00FF00';  // Set percentage to bright green
+        }
+    }
+
+    if (term === "Set Rate") {
+        if (percentageValue < 25) {
+            color = 'red';  // Set percentage to red
+            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
+        } else if (percentageValue > 45) {
+            color = '#00FF00';  // Set percentage to bright green
+        }
+    }
+
+    return color;  // Return the color for the percentage
+}
+
+// Function to update the content of an accordion section without re-rendering it
+function updateAccordionContent(sheetName, data) {
+    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the selector
+    const contentDiv = document.querySelector(`#${validSelector} .panel`);
+    
+    // Check if the contentDiv exists before proceeding
+    if (!contentDiv) {
+        console.error(`Accordion panel for ${sheetName} not found.`);
+        return;
+    }
+
+    const table = contentDiv.querySelector('table');
+    
+    // Check if the table exists inside the panel
+    if (!table) {
+        console.error(`Table for ${sheetName} not found inside the panel.`);
+        return;
+    }
+
+    table.innerHTML = '';  // Clear existing data
+
+    data.forEach((row, rowIndex) => {
+        const rowElement = document.createElement('tr');
+        row.forEach((cellData, cellIndex) => {
+            const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
+
+            if (rowIndex === 0) {
+                // Header row (labels should be yellow)
+                cellElement.style.color = 'yellow';
+            } else {
+                const isNameCell = (cellIndex === 0);
+                const isPercentage = cellData.includes('%');
+                
+                // Handle the name cell (default to white)
+                if (isNameCell) {
+                    cellElement.style.color = 'white';  // Default ISR names to white
+                }
+
+                if (isPercentage) {
+                    // If it's a percentage, apply the color logic based on thresholds
+                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
+
+                    if (row.includes("5-Minute Answer Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
+                    } else if (row.includes("Set Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
+                    } else {
+                        cellElement.style.color = 'white';  // Default to white if no special condition applies
+                    }
+                } else if (isNumeric(cellData)) {
+                    // Numbers should be white
+                    cellElement.style.color = 'white';
+                } else {
+                    // Default text should be yellow
+                    cellElement.style.color = 'yellow';
+                }
+            }
+
+            cellElement.textContent = cellData;
+            rowElement.appendChild(cellElement);
         });
-        table.appendChild(tr);
+        table.appendChild(rowElement);
     });
-
-    container.innerHTML = '';  // Clear previous content
-    container.appendChild(table);  // Add the new table
 }
 
-// Function to save data back to Google Sheets (e.g., when users submit forms)
-async function saveDataToSheet(values) {
-    const sheetName = 'Sheet1';  // Specify the sheet where you want to save data
-    const range = 'A1';  // Specify where in the sheet the data should go
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!${range}:append?valueInputOption=USER_ENTERED&key=${apiKey}`;
+// Function to create an accordion-style section initially
+function createAccordionSection(sheetName, data) {
+    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
+    const container = document.createElement('div');
+    container.id = validSelector;  // Set unique ID for each accordion section
 
-    const body = {
-        values: [values]
-    };
+    const button = document.createElement('button');
+    button.classList.add('accordion');
+    button.textContent = `${sheetName} Data`;
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
+    const content = document.createElement('div');
+    content.classList.add('panel');
+
+    // Create scrollable container for the table
+    const scrollContainer = document.createElement('div');
+    scrollContainer.classList.add('scroll-container');
+
+    // Create the table
+    const table = document.createElement('table');
+    table.classList.add('data-table');
+
+    // Append the table to the scrollable container
+    scrollContainer.appendChild(table);
+    content.appendChild(scrollContainer);
+    container.appendChild(button);
+    container.appendChild(content);
+    document.getElementById('data-container').appendChild(container);
+
+    updateAccordionContent(sheetName, data);  // Fill the table with data
+
+    button.addEventListener('click', function () {
+        this.classList.toggle('active');
+        const panel = this.nextElementSibling;
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     });
+}
 
-    if (!response.ok) {
-        throw new Error('Failed to save data to Google Sheets');
+// Function to load data for all sheets initially
+async function loadAllSheetsData() {
+    document.getElementById('data-container').innerHTML = '';  // Clear existing data
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        createAccordionSection(sheetName, sheetData);  // Create accordion sections initially
     }
 }
 
-// Event listener for submitting form data
-document.getElementById('data-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const inputData = document.getElementById('inputData').value;
-    await saveDataToSheet([inputData]);
-    alert('Data successfully saved to Google Sheets!');
-});
-
-// Function to open Zoho report (link)
-function openZohoReport() {
-    window.open('https://www.zoho.com/reports/', '_blank');
-}
-
-// Load data from multiple sheets when the page loads
-async function loadData() {
-    try {
-        const sheet1Data = await fetchSheetData('Sheet1');  // Pull data from Sheet1
-        displayData(sheet1Data, 'data-container-1');
-
-        const sheet2Data = await fetchSheetData('Sheet2');  // Pull data from Sheet2
-        displayData(sheet2Data, 'data-container-2');
-    } catch (error) {
-        console.error('Error loading data:', error);
+// Function to update data for all sheets without reloading the whole structure
+async function updateAllSheetsData() {
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        updateAccordionContent(sheetName, sheetData);  // Update only the content
     }
 }
 
-window.onload = loadData;  // Load data on page load
+// Set up auto-fetching every two minutes, updating the content only
+function autoFetchData() {
+    loadAllSheetsData();  // Initial load
+    setInterval(updateAllSheetsData, 120000);  // Update every 2 minutes
+}
+
+// Load data when the page loads
+window.onload = autoFetchData;
