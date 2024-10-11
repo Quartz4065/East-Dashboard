@@ -2,9 +2,6 @@
 const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60'; 
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
 
-// Manually specified list of all sheet names (tabs)
-const sheetNames = ["Daily", "Previous Day", "Saturday", "Leaderboard", "Commission", "PIPS and Benching", "Today's No Shows", "Keepy Uppy", "Critical Numbers", "MTD Shows", "Incident Tracker", "Answer Rates"];
-
 // Function to fetch data from a specific sheet (tab)
 async function fetchSheetData(sheetName) {
     const encodedSheetName = encodeURIComponent(sheetName); 
@@ -17,7 +14,7 @@ async function fetchSheetData(sheetName) {
         }
         const data = await response.json();
         console.log(`Fetched data from ${sheetName}:`, data);  // Log fetched data for debugging
-        return data.values || [];
+        return data.values || [];  // Returns rows of data from the sheet
     } catch (error) {
         console.error(`Error fetching data from ${sheetName}:`, error);
         return [];
@@ -36,6 +33,22 @@ function apply5MinAnswerRateColor(percentage) {
     }
 }
 
+// Function to parse data from Google Sheets
+function parseSheetData(sheetData) {
+    const parsedData = [];
+    sheetData.slice(1).forEach(row => {  // Start at index 1 to skip headers
+        const [city, name, answerRate, setRate] = row;
+        // Check if city already exists in parsedData
+        let cityObj = parsedData.find(c => c.city === city);
+        if (!cityObj) {
+            cityObj = { city: city, people: [] };
+            parsedData.push(cityObj);
+        }
+        cityObj.people.push({ name: name, answerRate: answerRate, setRate: setRate });
+    });
+    return parsedData;
+}
+
 // Function to create the dashboard layout dynamically
 function createDashboardLayout(data) {
     const dashboardContainer = document.getElementById('dashboard-container');
@@ -47,7 +60,7 @@ function createDashboardLayout(data) {
         cityCard.classList.add('city-card');
 
         const cityTitle = document.createElement('h2');
-        cityTitle.textContent = cityData.city;  // Assuming data has a "city" field
+        cityTitle.textContent = cityData.city;  // City name
         cityCard.appendChild(cityTitle);
 
         // Add people and their data for each city
@@ -88,29 +101,8 @@ function createDashboardLayout(data) {
 // Function to load data for all sheets initially
 async function loadAllSheetsData() {
     const sheetData = await fetchSheetData('Daily');  // Load data from "Daily" sheet
-    const parsedData = parseSheetData(sheetData);  // Parse the sheet data (adjust based on your structure)
+    const parsedData = parseSheetData(sheetData);  // Parse the sheet data
     createDashboardLayout(parsedData);  // Populate the dashboard with cards
-}
-
-// Example function to parse the sheet data (adjust this based on your actual structure)
-function parseSheetData(sheetData) {
-    // Assuming the sheetData is structured in rows with city, person, and metrics
-    return [
-        {
-            city: "City A",
-            people: [
-                { name: "Person 1", answerRate: "4%", setRate: "35%" },
-                { name: "Person 2", answerRate: "12%", setRate: "42%" }
-            ]
-        },
-        {
-            city: "City B",
-            people: [
-                { name: "Person 3", answerRate: "6%", setRate: "30%" },
-                { name: "Person 4", answerRate: "9%", setRate: "50%" }
-            ]
-        }
-    ];
 }
 
 // Load data when the page loads
