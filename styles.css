@@ -1,3 +1,4 @@
+/* Body styling */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
@@ -5,45 +6,51 @@ body {
     padding: 20px;
 }
 
-h1, h2 {
+h1 {
     text-align: center;
     color: #333;
 }
 
+/* Accordion button styling */
+.accordion {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    transition: 0.4s;
+    margin-bottom: 5px;
+}
+
+/* Hover effect for accordion */
+.accordion:hover {
+    background-color: #555;
+}
+
+/* Active accordion section styling */
+.accordion.active {
+    background-color: #666;
+}
+
+/* Panel styling (content inside the accordion) */
+.panel {
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    padding: 10px;
+}
+
+/* Styling for table inside the accordion */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background-color: #4CAF50;
-    color: white;
-}
-
-form {
     margin-top: 20px;
 }
 
-button {
-    padding: 10px 15px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-input {
+th, td {
     padding: 10px;
-    margin-right: 10px;
-}
+    text-align: left;​⬤
