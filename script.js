@@ -47,12 +47,12 @@ function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup = []
     let color = 'white';  // Default color for percentages
 
     if (term === "5-Minute Answer Rate") {
-        if (percentageValue <= 5) {
-            color = 'red';  // Turn percentage red if 5% or less
+        if (percentageValue < 4) {
+            color = 'red';  // Turn percentage red if below 4%
             nameCell.style.color = 'red';  // Turn the name red
             cityCell.style.color = 'red';  // Turn the city red
-        } else if (percentageValue > 5 && percentageValue < 10) {
-            color = 'white';  // Keep percentage white between 5% and 9.99%
+        } else if (percentageValue >= 4 && percentageValue < 10) {
+            color = 'white';  // Keep percentage white between 4% and 9.99%
             if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
                 nameCell.style.color = 'white';  // Keep the name white unless it's triggered
                 cityCell.style.color = 'white';  // Keep the city white unless it's triggered
@@ -158,6 +158,13 @@ function updateAccordionContent(sheetName, data) {
             rowElement.appendChild(cellElement);
         });
         table.appendChild(rowElement);
+
+        // Add a break after each city group
+        if (rowIndex > 0 && row.some(cellData => cellData.toLowerCase() === 'total')) {
+            const breakRow = document.createElement('tr');
+            breakRow.style.height = '10px'; // Create a visual gap
+            table.appendChild(breakRow);
+        }
     });
 }
 
