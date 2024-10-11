@@ -1,107 +1,33 @@
-/* Basic body styling */
 body {
-    background-color: #222;  /* Dark background */
-    color: white;  /* Default text color */
     font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
     margin: 0;
     padding: 20px;
 }
 
-/* Styling for the accordion button */
-.accordion {
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-    padding: 10px;
-    width: 100%;
-    text-align: left;
-    border: none;
-    outline: none;
-    font-size: 18px;
-    transition: 0.4s;
-    margin-bottom: 5px;
+h1 {
+    text-align: center;
+    color: #333;
 }
 
-/* Change background on hover */
-.accordion:hover {
-    background-color: #555;
-}
-
-/* Active (open) accordion panel styling */
-.accordion.active {
-    background-color: #666;
-}
-
-/* Panel to contain the table (initially hidden) */
-.panel {
-    padding: 0;
-    display: none;
-    overflow: hidden;
-    background-color: #222;
-    margin-bottom: 10px;
-}
-
-/* Scrollable container for large tables */
-.scroll-container {
-    overflow-x: auto;
-    width: 100%;
-}
-
-/* Table styling */
-.data-table {
+table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
+    margin-top: 20px;
 }
 
-.data-table th, .data-table td {
-    border: 1px solid #555;
+th, td {
+    border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
 }
 
-/* Header row styling */
-.data-table th {
-    background-color: #444;
-    color: yellow;  /* Ensure header text is yellow */
+th {
+    background-color: #4CAF50;
+    color: white;
 }
 
-/* Default text color in table cells */
-.data-table td {
-    color: white;  /* Ensure cells are white by default */
-}
-
-/* Specific colors that are dynamically applied via script.js */
-td[data-color="red"] {
-    color: red !important;
-}
-
-td[data-color="green"] {
-    color: #00FF00 !important;  /* Bright green */
-}
-
-td[data-color="white"] {
-    color: white !important;
-}
-
-/* Optional: make accordion buttons sticky for large tables */
-.sticky-accordion {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-/* Alternating row colors for readability */
-.data-table tr:nth-child(even) {
-    background-color: #333;
-}
-
-.data-table tr:nth-child(odd) {
-    background-color: #222;
-}
-
-/* Optional: Visual spacing between city groups */
-.city-break td {
-    height: 10px;
-    background-color: #111;  /* Slightly darker to show separation */
+.alert {
+    color: red;
+    font-weight: bold;
 }
