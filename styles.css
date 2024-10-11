@@ -1,43 +1,101 @@
+/* Basic body styling */
 body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
+    background-color: #222;  /* Dark background */
+    color: white;  /* Default text color */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
-h1 {
-  text-align: center;
+/* Styling for the accordion button */
+.accordion {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    transition: 0.4s;
+    margin-bottom: 5px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+/* Change background on hover */
+.accordion:hover {
+    background-color: #555;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
+/* Active (open) accordion panel styling */
+.accordion.active {
+    background-color: #666;
 }
 
-th {
-  background-color: #4CAF50;
-  color: white;
+/* Panel to contain the table (initially hidden) */
+.panel {
+    padding: 0;
+    display: none;
+    overflow: hidden;
+    background-color: #222;
+    margin-bottom: 10px;
 }
 
-/* Color classes */
-.red {
-  color: red;
+/* Scrollable container for large tables */
+.scroll-container {
+    overflow-x: auto;
+    width: 100%;
 }
 
-.green {
-  color: #00FF00;  /* Bright green */
+/* Table styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
 }
 
-.white {
-  color: white;
+.data-table th, .data-table td {
+    border: 1px solid #555;
+    padding: 10px;
+    text-align: left;
 }
 
-.city-break {
-  height: 10px;
-  background-color: #f2f2f2;
+/* Header row styling */
+.data-table th {
+    background-color: #444;
+    color: white;  /* Ensure header text is white */
+}
+
+/* Default text color in table cells */
+.data-table td {
+    color: white;  /* Ensure cells are white by default */
+}
+
+/* Specific colors that are dynamically applied via script.js */
+td[data-color="red"] {
+    color: red !important;
+}
+
+td[data-color="green"] {
+    color: #00FF00 !important;  /* Bright green */
+}
+
+td[data-color="white"] {
+    color: white !important;
+}
+
+/* Optional: make accordion buttons sticky for large tables */
+.sticky-accordion {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Alternating row colors for readability */
+.data-table tr:nth-child(even) {
+    background-color: #333;
+}
+
+.data-table tr:nth-child(odd) {
+    background-color: #222;
 }
