@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Data Form</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="data-container">
-        <!-- Accordion sections and tables will be dynamically inserted here -->
-    </div>
+  <h1>Daily Data Form</h1>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>City</th>
+        <th>ISR</th>
+        <th>5 Min Answer Rate</th>
+        <th>Set Rate</th>
+        <th>Calls</th>
+        <th>Show Rate - 3 Day</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data rows will be populated by script.js -->
+    </tbody>
+  </table>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
