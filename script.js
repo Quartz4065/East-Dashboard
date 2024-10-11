@@ -41,52 +41,54 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage color logic for both 5-minute answer rate and set rate
-function applyPercentageColor(cellText, term, nameCell, cityCell, cityGroup = []) {
-    const percentageValue = parseFloat(cellText.replace('%', ''));
-    let color = 'white';  // Default color for percentages
+// Function to apply percentage and value-based color logic for multiple columns
+function applyColumnColorLogic(cellText, term, nameCell, cityCell, cityGroup = []) {
+    let color = 'white';  // Default color for all columns
+    const value = parseFloat(cellText.replace('%', '').replace(/,/g, ''));  // Remove % and commas
 
     if (term === "5-Minute Answer Rate") {
-        if (percentageValue < 4) {
-            color = 'red';  // Turn percentage red if below 4%
+        if (value < 5) {
+            color = 'red';
             nameCell.style.color = 'red';  // Turn the name red
             cityCell.style.color = 'red';  // Turn the city red
-        } else if (percentageValue >= 4 && percentageValue < 10) {
-            color = 'white';  // Keep percentage white between 4% and 9.99%
-            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
-                nameCell.style.color = 'white';  // Keep the name white unless it's triggered
-                cityCell.style.color = 'white';  // Keep the city white unless it's triggered
-            }
-        } else if (percentageValue >= 10) {
-            color = '#00FF00';  // Turn percentage green if 10% or more
-            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
-                nameCell.style.color = 'white';  // Keep the name white unless triggered
-                cityCell.style.color = 'white';  // Keep the city white unless triggered
-            }
+        } else if (value >= 5 && value < 10) {
+            color = 'white';  // Keep percentage white between 5% and 9.99%
+        } else if (value >= 10) {
+            color = '#00FF00';  // Turn green if 10% or more
         }
     }
 
     if (term === "Set Rate") {
-        if (percentageValue < 25) {
-            color = 'red';  // Turn percentage red if below 25%
+        if (value < 25) {
+            color = 'red';  // Below 25% turns red
             nameCell.style.color = 'red';  // Turn the name red
             cityCell.style.color = 'red';  // Turn the city red
-        } else if (percentageValue >= 25 && percentageValue < 40) {
-            color = 'white';  // Keep percentage white between 25% and 39.99%
-            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
-                nameCell.style.color = 'white';  // Keep the name white unless it's triggered
-                cityCell.style.color = 'white';  // Keep the city white unless it's triggered
-            }
-        } else if (percentageValue >= 40) {
-            color = '#00FF00';  // Turn percentage green if 40% or more
-            if (!cityGroup || !cityGroup.some(person => person && person.style.color === 'red')) {
-                nameCell.style.color = 'white';  // Keep the name white unless triggered
-                cityCell.style.color = 'white';  // Keep the city white unless triggered
-            }
+        } else if (value >= 25 && value < 40) {
+            color = 'white';  // Between 25% and 39.99% stays white
+        } else if (value >= 40) {
+            color = '#00FF00';  // Above 40% turns green
         }
     }
 
-    return color;  // Return the color for the percentage
+    if (term === "Calls") {
+        if (value < 200) {
+            color = 'red';  // Below 200 calls turns red
+        } else if (value >= 200 && value <= 280) {
+            color = 'white';  // Between 200 and 280 stays white
+        } else if (value > 280) {
+            color = '#00FF00';  // Above 280 calls turns green
+        }
+    }
+
+    if (term === "Showrate - 3 Day") {
+        if (value < 70) {
+            color = 'red';  // Below 70% show rate turns red
+        } else if (value >= 70) {
+            color = '#00FF00';  // 70% or higher turns green
+        }
+    }
+
+    return color;
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -138,12 +140,12 @@ function updateAccordionContent(sheetName, data) {
                     cityGroups[city].push(nameCell);
                 }
 
-                if (cellData.includes('%')) {
-                    // If it's a percentage, apply the color logic based on thresholds
-                    const term = row.includes("5-Minute Answer Rate") ? "5-Minute Answer Rate" : "Set Rate";
-                    cellElement.style.color = applyPercentageColor(cellData, term, nameCell, cityCell, cityGroups[cityCell.textContent.trim()]);
+                // Check and apply the color logic for each relevant column
+                if (["5-Minute Answer Rate", "Set Rate", "Calls", "Showrate - 3 Day"].includes(row[0])) {
+                    const term = row[0];  // The name of the column being processed
+                    cellElement.style.color = applyColumnColorLogic(cellData, term, nameCell, cityCell, cityGroups[cityCell.textContent.trim()]);
                 } else if (isNumeric(cellData)) {
-                    cellElement.style.color = 'white';  // Numbers should be white
+                    cellElement.style.color = 'white';  // Default white for numeric values
                 } else {
                     // Keep "Total" white, regardless of any logic
                     if (cellData.toLowerCase() === 'total') {
@@ -198,7 +200,9 @@ function createAccordionSection(sheetName, data) {
     button.addEventListener('click', function () {
         this.classList.toggle('active');
         const panel = this.nextElementSibling;
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        panel.style.display
+
+ = panel.style.display === 'block' ? 'none' : 'block';
     });
 }
 
