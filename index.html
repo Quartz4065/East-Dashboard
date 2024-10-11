@@ -3,37 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Google Sheets Data Dashboard</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your styles.css -->
 </head>
 <body>
     <h1>Google Sheets Data Dashboard</h1>
+    <div id="data-container"></div> <!-- Container for dynamically generated accordion content -->
 
-    <!-- Section to display data from multiple tabs -->
-    <div id="tabs-section">
-        <h2>Sheet 1 Data</h2>
-        <div id="data-container-1"></div>
-
-        <h2>Sheet 2 Data</h2>
-        <div id="data-container-2"></div>
-    </div>
-
-    <!-- Input section to allow users to save data back to Google Sheets -->
-    <section id="input-section">
-        <h2>Submit Data</h2>
-        <form id="data-form">
-            <label for="inputData">Enter some data:</label>
-            <input type="text" id="inputData" name="inputData" required>
-            <button type="submit">Submit Data</button>
-        </form>
-    </section>
-
-    <!-- Button to open Zoho report link -->
-    <section id="button-section">
-        <h2>Open Zoho Report</h2>
-        <button id="zohoReportButton" onclick="openZohoReport()">Open Zoho Report</button>
-    </section>
-
-    <script src="script.js"></script> <!-- Link to the JS file -->
+    <!-- The script.js is linked here to handle the data fetching and display -->
+    <script src="script.js"></script>
 </body>
 </html>
