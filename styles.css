@@ -1,117 +1,43 @@
-/* Basic body styling */
 body {
-    background-color: #222;  /* Dark background */
-    color: white;  /* Default text color */
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
+  font-family: Arial, sans-serif;
+  padding: 20px;
 }
 
-/* Styling for the accordion button */
-.accordion {
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-    padding: 10px;
-    width: 100%;
-    text-align: left;
-    border: none;
-    outline: none;
-    font-size: 18px;
-    transition: 0.4s;
-    margin-bottom: 5px;
+h1 {
+  text-align: center;
 }
 
-/* Change background on hover */
-.accordion:hover {
-    background-color: #555;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-/* Active (open) accordion panel styling */
-.accordion.active {
-    background-color: #666;
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
 }
 
-/* Panel to contain the table (initially hidden) */
-.panel {
-    padding: 0;
-    display: none;
-    overflow: hidden;
-    background-color: #222;
-    margin-bottom: 10px;
+th {
+  background-color: #4CAF50;
+  color: white;
 }
 
-/* Scrollable container for large tables */
-.scroll-container {
-    overflow-x: auto;
-    width: 100%;
+/* Color classes */
+.red {
+  color: red;
 }
 
-/* Table styling */
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 10px 0;
+.green {
+  color: #00FF00;  /* Bright green */
 }
 
-.data-table th, .data-table td {
-    border: 1px solid #555;
-    padding: 10px;
-    text-align: left;
+.white {
+  color: white;
 }
 
-/* Header row styling */
-.data-table th {
-    background-color: #444;
-    color: yellow;
-}
-
-/* Default text color in table cells */
-.data-table td {
-    color: white;  /* This ensures that non-ISR cells stay white unless otherwise specified */
-}
-
-/* Specific colors that are dynamically applied via script.js */
-td[data-color="red"] {
-    color: red !important;
-}
-
-td[data-color="green"] {
-    color: #00FF00 !important;  /* Bright green */
-}
-
-td[data-color="white"] {
-    color: white !important;
-}
-
-/* Numbers and percentages should default to white unless overridden by script */
-td[data-color="percentage"] {
-    color: white;
-}
-
-/* Optional: make accordion buttons sticky for large tables */
-.sticky-accordion {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-/* Additional table styling for better visual clarity */
-.data-table td, .data-table th {
-    text-align: left;
-    padding: 8px;
-    font-size: 16px;
-}
-
-.data-table tr:nth-child(even) {
-    background-color: #333;
-}
-
-.data-table tr:nth-child(odd) {
-    background-color: #222;
-}
-
-/* For better readability, alternating row colors */
-.data-table tr:nth-child(odd) {
-    background-color: #222;
+.city-break {
+  height: 10px;
+  background-color: #f2f2f2;
 }
