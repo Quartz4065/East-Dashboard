@@ -1,5 +1,6 @@
 // Your Google Sheets API Key and Spreadsheet ID
-const apiKey = 'YOUR_GOOGLE_SHEETS_API_KEY';  // Replace with your API Key
+const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFreXhqanVndm95Z2F0dm1kY2V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgxMzgzNTksImV4cCI6MjA0MzcxNDM1OX0.tYy2TURvZA0FPteFMANyVWQe8urI7_Ilg8mrDEnA-cs
+';  // Replace with your API Key
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';  // Replace with your Spreadsheet ID
 
 // Function to fetch data from a specific sheet (tab)
