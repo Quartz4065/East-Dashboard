@@ -106,7 +106,7 @@ function updateAccordionContent(sheetName, data) {
             const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
 
             if (rowIndex === 0) {
-                cellElement.style.color = 'yellow';
+                cellElement.style.color = 'yellow';  // Set headers to yellow
             } else {
                 const isNameCell = (cellIndex === 0);
                 const isPercentage = cellData.includes('%');
@@ -116,4 +116,96 @@ function updateAccordionContent(sheetName, data) {
                 }
 
                 if (isPercentage) {
-                    const nameCell = rowElement.children[
+                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
+
+                    if (row.includes("5-Minute Answer Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
+                    } else if (row.includes("Set Rate")) {
+                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
+                    } else {
+                        cellElement.style.color = 'white';  // Default to white if no special condition applies
+                    }
+                } else if (isNumeric(cellData)) {
+                    cellElement.style.color = 'white';  // Numbers should be white
+                } else {
+                    cellElement.style.color = 'yellow';  // Default text should be yellow
+                }
+            }
+
+            cellElement.textContent = cellData;
+            rowElement.appendChild(cellElement);
+        });
+        table.appendChild(rowElement);
+    });
+}
+
+// Function to create an accordion section initially
+function createAccordionSection(sheetName, data) {
+    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
+    const container = document.createElement('div');
+    container.id = validSelector;  // Set unique ID for each accordion section
+
+    const button = document.createElement('button');
+    button.classList.add('accordion');
+    button.textContent = `${sheetName} Data`;
+
+    const fullScreenBtn = document.createElement('button');  // Full screen button
+    fullScreenBtn.classList.add('fullscreen-button');
+    fullScreenBtn.textContent = "Full Screen";
+    fullScreenBtn.onclick = function() {
+        toggleFullScreen(container);  // Toggle full screen mode
+    };
+
+    const content = document.createElement('div');
+    content.classList.add('panel');
+
+    // Create scrollable container for the table
+    const scrollContainer = document.createElement('div');
+    scrollContainer.classList.add('scroll-container');
+
+    // Create the table
+    const table = document.createElement('table');
+    table.classList.add('data-table');
+
+    // Append the table to the scrollable container
+    scrollContainer.appendChild(table);
+    content.appendChild(scrollContainer);
+    container.appendChild(button);
+    container.appendChild(fullScreenBtn);  // Append full screen button
+    container.appendChild(content);
+    document.getElementById('data-container').appendChild(container);
+
+    updateAccordionContent(sheetName, data);  // Fill the table with data
+
+    button.addEventListener('click', function () {
+        this.classList.toggle('active');
+        const panel = this.nextElementSibling;
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    });
+}
+
+// Function to load data for all sheets initially
+async function loadAllSheetsData() {
+    document.getElementById('data-container').innerHTML = '';  // Clear existing data
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        createAccordionSection(sheetName, sheetData);  // Create accordion sections initially
+    }
+}
+
+// Function to update data for all sheets without reloading the whole structure
+async function updateAllSheetsData() {
+    for (const sheetName of sheetNames) {
+        const sheetData = await fetchSheetData(sheetName);
+        updateAccordionContent(sheetName, sheetData);  // Update only the content
+    }
+}
+
+// Set up auto-fetching every two minutes, updating the content only
+function autoFetchData() {
+    loadAllSheetsData();  // Initial load
+    setInterval(updateAllSheetsData, 120000);  // Update every 2 minutes
+}
+
+// Load data when the page loads
+window.onload = autoFetchData;
