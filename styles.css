@@ -63,7 +63,7 @@ body {
 /* Header row styling */
 .data-table th {
     background-color: #444;
-    color: white;  /* Ensure header text is white */
+    color: yellow;  /* Ensure header text is yellow */
 }
 
 /* Default text color in table cells */
@@ -98,4 +98,10 @@ td[data-color="white"] {
 
 .data-table tr:nth-child(odd) {
     background-color: #222;
+}
+
+/* Optional: Visual spacing between city groups */
+.city-break td {
+    height: 10px;
+    background-color: #111;  /* Slightly darker to show separation */
 }
