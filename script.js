@@ -3,20 +3,7 @@ const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
 const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA'; 
 
 // Manually specified list of all sheet names (tabs)
-const sheetNames = [
-    "Daily", 
-    "Previous Day", 
-    "Saturday", 
-    "Leaderboard", 
-    "Commission", 
-    "PIPS and Benching", 
-    "Today's No Shows", 
-    "Keepy Uppy", 
-    "Critical Numbers", 
-    "MTD Shows", 
-    "Incident Tracker", 
-    "Answer Rates"
-];
+const sheetNames = ["Daily", "Previous Day", "Saturday", "Leaderboard", "Commission", "PIPS and Benching", "Today's No Shows", "Keepy Uppy", "Critical Numbers", "MTD Shows", "Incident Tracker", "Answer Rates"];
 
 // Function to check if a value is numeric
 function isNumeric(value) {
@@ -27,7 +14,7 @@ function isNumeric(value) {
 async function fetchSheetData(sheetName) {
     const encodedSheetName = encodeURIComponent(sheetName); 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
-    
+
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -47,33 +34,16 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage color logic
-function applyPercentageColor(cellText, term, nameCell) {
+// Function to apply percentage color logic for "5 Min Answer Rate"
+function apply5MinAnswerRateColor(cellText) {
     const percentageValue = parseFloat(cellText.replace('%', ''));
-    let color = 'white';  // Default color for percentages and names
-    
-    // Ensure ISR name is white by default
-    nameCell.style.color = 'white';  // Default ISR names to white
-
-    if (term === "5-Minute Answer Rate") {
-        if (percentageValue < 10) {
-            color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
-        } else if (percentageValue > 20) {
-            color = '#00FF00';  // Set percentage to bright green
-        }
+    if (percentageValue < 5) {
+        return 'red';  // Below 5% turns red
+    } else if (percentageValue > 10) {
+        return 'green';  // Above 10% turns green
+    } else {
+        return 'white';  // Between 5% and 10% stays white
     }
-
-    if (term === "Set Rate") {
-        if (percentageValue < 25) {
-            color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
-        } else if (percentageValue > 45) {
-            color = '#00FF00';  // Set percentage to bright green
-        }
-    }
-
-    return color;  // Return the color for the percentage
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -104,22 +74,15 @@ function updateAccordionContent(sheetName, data) {
                 cellElement.style.color = 'yellow';  // Set headers to yellow
             } else {
                 const isNameCell = (cellIndex === 0);
-                const isPercentage = cellData.includes('%');
-                
+                const is5MinAnswerRate = row[0] === "5 Min Answer Rate";  // Check if it's the 5 Min Answer Rate row
+
                 if (isNameCell) {
                     cellElement.style.color = 'white';  // Default ISR names to white
                 }
 
-                if (isPercentage) {
-                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
-
-                    if (row.includes("5-Minute Answer Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
-                    } else if (row.includes("Set Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
-                    } else {
-                        cellElement.style.color = 'white';  // Default to white if no special condition applies
-                    }
+                if (is5MinAnswerRate) {
+                    // Apply the percentage color logic for "5 Min Answer Rate"
+                    cellElement.style.color = apply5MinAnswerRateColor(cellData);
                 } else if (isNumeric(cellData)) {
                     cellElement.style.color = 'white';  // Numbers should be white
                 } else {
