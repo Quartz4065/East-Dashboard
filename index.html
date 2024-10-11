@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sheets Data Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Load Chart.js -->
 </head>
 <body>
-    <h1>Google Sheets Live Data Dashboard</h1>
-    <div id="data-container"></div> <!-- Container for dynamic data -->
+    <h1>Google Sheets Data Dashboard</h1>
 
-    <script src="script.js"></script>
+    <section id="tabs-section">
+        <h2>Sheet 1 Data</h2>
+        <div id="data-container-1"></div>
+        <canvas id="chart-1"></canvas> <!-- Chart for Sheet 1 -->
+
+        <h2>Sheet 2 Data</h2>
+        <div id="data-container-2"></div>
+        <canvas id="chart-2"></canvas> <!-- Chart for Sheet 2 -->
+    </section>
+
+    <script src="script.js"></script> <!-- Load the JS file -->
 </body>
 </html>
