@@ -4,88 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sheets Dashboard</title>
-    <style>
-        /* Add the dark theme styling */
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            padding: 20px;
-            max-width: 1000px;
-            margin: auto;
-        }
-
-        h1 {
-            color: #00ffcc;
-            text-align: center;
-        }
-
-        .tab-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #222;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button.active {
-            background-color: #00ffcc;
-        }
-
-        .table-container {
-            display: none;
-        }
-
-        .table-container.active {
-            display: block;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background-color: #333;
-        }
-
-        table th, table td {
-            padding: 10px;
-            border: 1px solid #444;
-            text-align: left;
-        }
-
-        table th {
-            background-color: #222;
-        }
-
-        .positive {
-            color: green;
-        }
-
-        .negative {
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
     <h1>Google Sheets Dashboard</h1>
 
+    <!-- Tab Buttons -->
     <div class="tab-buttons">
         <button class="active" onclick="showTab('daily')">Daily</button>
         <button onclick="showTab('leads')">Leads</button>
         <button onclick="showTab('efficiency')">Efficiency</button>
     </div>
 
+    <!-- Tab Content -->
     <div id="daily" class="table-container active">
         <h2>Daily Data</h2>
         <table id="daily-table"></table>
@@ -102,8 +35,10 @@
     </div>
 </div>
 
-<!-- Load the Google API client library -->
+<!-- Google API Script -->
 <script src="https://apis.google.com/js/api.js"></script>
+<!-- Main Script -->
 <script src="script.js"></script>
+
 </body>
 </html>
