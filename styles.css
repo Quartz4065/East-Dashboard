@@ -30,48 +30,31 @@ h1 {
     border-radius: 5px;
 }
 
-/* Full-screen button styling */
-.fullscreen-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    margin-top: 10px;
-    float: right;
-    border-radius: 5px;
+/* Hover effect for accordion */
+.accordion:hover {
+    background-color: #333333;
 }
 
-.fullscreen-button:hover {
-    background-color: #45a049;
+/* Active accordion section */
+.accordion.active {
+    background-color: #333333;
 }
 
-/* Full-screen adjustments */
-.fullscreen {
-    background-color: #0d0d0d;
-    color: white;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.fullscreen .scroll-container {
-    max-height: none; /* Remove height restriction in full screen */
-}
-
+/* Panel styling (when opened, it will be taller) */
 .panel {
     display: none;
     overflow: hidden;
     background-color: #262626;
     padding: 20px;
     border-radius: 5px;
+    max-height: 1000px;  /* 3 times longer height */
+    transition: max-height 0.4s ease;
 }
 
 /* Scrollable table container */
 .scroll-container {
-    overflow-x: auto;
-    max-height: 400px;
+    overflow: auto;  /* Allow both vertical and horizontal scrolling */
+    max-height: 800px;  /* Increase height for larger viewable area */
     width: 100%;
     padding: 10px 0;
 }
