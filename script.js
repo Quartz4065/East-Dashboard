@@ -18,10 +18,11 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Function to apply percentage color logic
+// Function to apply percentage color logic for the 5-Minute Answer Rate
 function applyPercentageColor(value, metricType) {
     let color = 'white';  // Default color
 
+    // Logic for 5-Minute Answer Rate
     if (metricType === "5-Minute Answer Rate") {
         if (value < 5) {
             color = 'red';
@@ -74,10 +75,10 @@ function buildTable(sheetName, data) {
             const td = document.createElement('td');
             td.textContent = cellData;
 
-            // Apply color logic to the 5-Minute Answer Rate column (index 2)
-            if (cellIndex === 2) {
-                const value = parseFloat(cellData.replace('%', ''));
-                td.style.color = applyPercentageColor(value, "5-Minute Answer Rate");
+            // Correctly apply color logic to the 5-Minute Answer Rate column (index 2)
+            if (cellIndex === 2) {  
+                const value = parseFloat(cellData.replace('%', ''));  // Convert percentage text to number
+                td.style.color = applyPercentageColor(value, "5-Minute Answer Rate");  // Apply color logic
             }
 
             tr.appendChild(td);
@@ -97,69 +98,6 @@ function buildTable(sheetName, data) {
     });
 
     return table;
-}
-
-// Function to update the content of an accordion section without re-rendering it
-function updateAccordionContent(sheetName, data) {
-    const validSelector = sanitizeSheetName(sheetName);  // Sanitize the selector
-    const contentDiv = document.querySelector(`#${validSelector} .panel`);
-    
-    // Check if the contentDiv exists before proceeding
-    if (!contentDiv) {
-        console.error(`Accordion panel for ${sheetName} not found.`);
-        return;
-    }
-
-    const table = contentDiv.querySelector('table');
-    
-    // Check if the table exists inside the panel
-    if (!table) {
-        console.error(`Table for ${sheetName} not found inside the panel.`);
-        return;
-    }
-
-    table.innerHTML = '';  // Clear existing data
-
-    data.forEach((row, rowIndex) => {
-        const rowElement = document.createElement('tr');
-        row.forEach((cellData, cellIndex) => {
-            const cellElement = document.createElement(rowIndex === 0 ? 'th' : 'td');
-
-            if (rowIndex === 0) {
-                // Header row (labels should be yellow)
-                cellElement.style.color = 'yellow';
-            } else {
-                const isNameCell = (cellIndex === 0);
-                const isPercentage = cellData.includes('%');
-                
-                // Handle the name cell (default to white)
-                if (isNameCell) {
-                    cellElement.style.color = 'white';  // Default ISR names to white
-                }
-
-                if (isPercentage) {
-                    // If it's a percentage, apply the color logic based on thresholds
-                    const nameCell = rowElement.children[0];  // The name cell is the first in the row
-
-                    if (row.includes("5-Minute Answer Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
-                    } else {
-                        cellElement.style.color = 'white';  // Default to white if no special condition applies
-                    }
-                } else if (isNumeric(cellData)) {
-                    // Numbers should be white
-                    cellElement.style.color = 'white';
-                } else {
-                    // Default text should be yellow
-                    cellElement.style.color = 'yellow';
-                }
-            }
-
-            cellElement.textContent = cellData;
-            rowElement.appendChild(cellElement);
-        });
-        table.appendChild(rowElement);
-    });
 }
 
 // Function to create an accordion section for each sheet
