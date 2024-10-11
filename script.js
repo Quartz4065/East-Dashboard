@@ -18,17 +18,6 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Function to toggle full screen for a specific element
-function toggleFullScreen(element) {
-    if (!document.fullscreenElement) {
-        element.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable full-screen mode: ${err.message}`);
-        });
-    } else {
-        document.exitFullscreen();
-    }
-}
-
 // Function to check if a value is numeric
 function isNumeric(value) {
     return !isNaN(parseFloat(value)) && isFinite(value);
@@ -38,13 +27,19 @@ function isNumeric(value) {
 async function fetchSheetData(sheetName) {
     const encodedSheetName = encodeURIComponent(sheetName); 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedSheetName}?key=${apiKey}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-        console.error(`Failed to fetch data from ${sheetName}:`, response.statusText);
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data from ${sheetName}: ${response.status} - ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log(`Fetched data from ${sheetName}:`, data);  // Log fetched data for debugging
+        return data.values || [];
+    } catch (error) {
+        console.error(`Error fetching data from ${sheetName}:`, error);
         return [];
     }
-    const data = await response.json();
-    return data.values || [];
 }
 
 // Function to sanitize the sheet name for use in IDs and selectors
@@ -149,13 +144,6 @@ function createAccordionSection(sheetName, data) {
     button.classList.add('accordion');
     button.textContent = `${sheetName} Data`;
 
-    const fullScreenBtn = document.createElement('button');  // Full screen button
-    fullScreenBtn.classList.add('fullscreen-button');
-    fullScreenBtn.textContent = "Full Screen";
-    fullScreenBtn.onclick = function() {
-        toggleFullScreen(container);  // Toggle full screen mode
-    };
-
     const content = document.createElement('div');
     content.classList.add('panel');
 
@@ -171,7 +159,6 @@ function createAccordionSection(sheetName, data) {
     scrollContainer.appendChild(table);
     content.appendChild(scrollContainer);
     container.appendChild(button);
-    container.appendChild(fullScreenBtn);  // Append full screen button
     container.appendChild(content);
     document.getElementById('data-container').appendChild(container);
 
@@ -189,7 +176,12 @@ async function loadAllSheetsData() {
     document.getElementById('data-container').innerHTML = '';  // Clear existing data
     for (const sheetName of sheetNames) {
         const sheetData = await fetchSheetData(sheetName);
-        createAccordionSection(sheetName, sheetData);  // Create accordion sections initially
+        if (sheetData.length > 0) {
+            console.log(`Creating section for ${sheetName}`);  // Log when creating sections
+            createAccordionSection(sheetName, sheetData);  // Create accordion sections initially
+        } else {
+            console.error(`No data found for sheet: ${sheetName}`);  // Log if no data is found
+        }
     }
 }
 
