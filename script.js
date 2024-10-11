@@ -18,9 +18,19 @@ const sheetNames = [
     "Answer Rates"
 ];
 
-// Function to check if a value is numeric
-function isNumeric(value) {
-    return !isNaN(parseFloat(value)) && isFinite(value);
+// Function to apply percentage color logic
+function applyPercentageColor(value, metricType) {
+    let color = 'white';  // Default color
+
+    if (metricType === "5-Minute Answer Rate") {
+        if (value < 5) {
+            color = 'red';
+        } else if (value >= 10) {
+            color = 'green';
+        }
+    }
+
+    return color;
 }
 
 // Function to fetch data from a specific sheet (tab)
@@ -41,33 +51,52 @@ function sanitizeSheetName(sheetName) {
     return sheetName.replace(/[^a-zA-Z0-9]/g, '-'); // Replace special characters with hyphens
 }
 
-// Function to apply percentage color logic
-function applyPercentageColor(cellText, term, nameCell) {
-    const percentageValue = parseFloat(cellText.replace('%', ''));
-    let color = 'white';  // Default color for percentages and names
-    
-    // Ensure ISR name is white by default
-    nameCell.style.color = 'white';  // Default ISR names to white
+// Function to dynamically build the table
+function buildTable(sheetName, data) {
+    const table = document.createElement('table');
+    table.className = 'data-table';
 
-    if (term === "5-Minute Answer Rate") {
-        if (percentageValue < 5) {
-            color = 'red';  // Set percentage to red
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is below 5%
-        } else if (percentageValue >= 10) {
-            color = '#00FF00';  // Set percentage to bright green if above 10%
+    // Build the header
+    const headerRow = document.createElement('tr');
+    const headers = ["City", "ISR", "5-Minute Answer Rate", "Set Rate", "Calls", "Show Rate"];
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    // Build the data rows
+    data.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        
+        row.forEach((cellData, cellIndex) => {
+            const td = document.createElement('td');
+            td.textContent = cellData;
+
+            // Apply color logic to the 5-Minute Answer Rate column (index 2)
+            if (cellIndex === 2) {
+                const value = parseFloat(cellData.replace('%', ''));
+                td.style.color = applyPercentageColor(value, "5-Minute Answer Rate");
+            }
+
+            tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+
+        // Add a break after each city group
+        if (rowIndex < data.length - 1 && row[0] !== data[rowIndex + 1][0]) {
+            const spacer = document.createElement('tr');
+            const spacerCell = document.createElement('td');
+            spacerCell.colSpan = headers.length;
+            spacerCell.style.height = '10px';
+            spacer.appendChild(spacerCell);
+            table.appendChild(spacer);
         }
-    }
+    });
 
-    if (term === "Set Rate") {
-        if (percentageValue < 25) {
-            color = 'red';  // Set percentage to red if below 25%
-            nameCell.style.color = 'red';  // Set ISR name to red if percentage is in red
-        } else if (percentageValue >= 40) {
-            color = '#00FF00';  // Set percentage to bright green if above 40%
-        }
-    }
-
-    return color;  // Return the color for the percentage
+    return table;
 }
 
 // Function to update the content of an accordion section without re-rendering it
@@ -114,8 +143,6 @@ function updateAccordionContent(sheetName, data) {
 
                     if (row.includes("5-Minute Answer Rate")) {
                         cellElement.style.color = applyPercentageColor(cellData, "5-Minute Answer Rate", nameCell);
-                    } else if (row.includes("Set Rate")) {
-                        cellElement.style.color = applyPercentageColor(cellData, "Set Rate", nameCell);
                     } else {
                         cellElement.style.color = 'white';  // Default to white if no special condition applies
                     }
@@ -135,7 +162,7 @@ function updateAccordionContent(sheetName, data) {
     });
 }
 
-// Function to create an accordion-style section initially
+// Function to create an accordion section for each sheet
 function createAccordionSection(sheetName, data) {
     const validSelector = sanitizeSheetName(sheetName);  // Sanitize the sheet name for use in the ID
     const container = document.createElement('div');
@@ -153,17 +180,12 @@ function createAccordionSection(sheetName, data) {
     scrollContainer.classList.add('scroll-container');
 
     // Create the table
-    const table = document.createElement('table');
-    table.classList.add('data-table');
-
-    // Append the table to the scrollable container
+    const table = buildTable(sheetName, data);
     scrollContainer.appendChild(table);
     content.appendChild(scrollContainer);
     container.appendChild(button);
     container.appendChild(content);
     document.getElementById('data-container').appendChild(container);
-
-    updateAccordionContent(sheetName, data);  // Fill the table with data
 
     button.addEventListener('click', function () {
         this.classList.toggle('active');
