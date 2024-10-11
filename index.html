@@ -3,44 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Hub from Google Sheets</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Google Sheets Dashboard</title>
+    <style>
+        /* Add the dark theme styling */
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #00ffcc;
+            text-align: center;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #222;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.active {
+            background-color: #00ffcc;
+        }
+
+        .table-container {
+            display: none;
+        }
+
+        .table-container.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #333;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #444;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #222;
+        }
+
+        .positive {
+            color: green;
+        }
+
+        .negative {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h1>Data Hub: Individuals & Cities</h1>
-    
-    <div id="dashboard">
-        <section id="city-data">
-            <h2>City Information</h2>
-            <table id="city-table" border="1">
-                <thead>
-                    <tr>
-                        <th>City</th>
-                        <th>Population</th>
-                        <th>Growth Rate (%)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
 
-        <section id="individual-data">
-            <h2>Individuals Information</h2>
-            <table id="individual-table" border="1">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Age</th>
-                        <th>Income ($)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </section>
+<div class="container">
+    <h1>Google Sheets Dashboard</h1>
 
-        <!-- Add more sections here for additional tabs if needed -->
+    <div class="tab-buttons">
+        <button class="active" onclick="showTab('daily')">Daily</button>
+        <button onclick="showTab('leads')">Leads</button>
+        <button onclick="showTab('efficiency')">Efficiency</button>
     </div>
 
-    <script src="script.js"></script>
+    <div id="daily" class="table-container active">
+        <h2>Daily Data</h2>
+        <table id="daily-table"></table>
+    </div>
+
+    <div id="leads" class="table-container">
+        <h2>Leads Data</h2>
+        <table id="leads-table"></table>
+    </div>
+
+    <div id="efficiency" class="table-container">
+        <h2>Efficiency Data</h2>
+        <table id="efficiency-table"></table>
+    </div>
+</div>
+
+<!-- Load the Google API client library -->
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
