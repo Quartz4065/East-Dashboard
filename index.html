@@ -3,16 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets Data Dashboard</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your dark theme styles.css -->
+    <title>Data Hub from Google Sheets</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Google Sheets Data Dashboard</h1>
+    <h1>Data Hub: Individuals & Cities</h1>
     
-    <!-- Container for the card-based layout -->
-    <div id="dashboard-container" class="dashboard-container"></div>
+    <div id="dashboard">
+        <section id="city-data">
+            <h2>City Information</h2>
+            <table id="city-table" border="1">
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Population</th>
+                        <th>Growth Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
 
-    <!-- The script.js is linked here to handle the data fetching and display -->
+        <section id="individual-data">
+            <h2>Individuals Information</h2>
+            <table id="individual-table" border="1">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Income ($)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Add more sections here for additional tabs if needed -->
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
