@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISR Dashboard - Dark Theme</title>
+    <title>ISR Dashboard - Dark Theme (Exact Layout)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,22 +38,28 @@
         .low-percentage {
             color: #ff5252; /* Bright red for low percentages */
         }
+        .empty-cell {
+            background-color: #2b2b2b; /* Empty cells to match the original layout */
+        }
     </style>
 </head>
 <body>
-    <h1>ISR Performance Dashboard</h1>
+    <h1>ISR Performance Dashboard (Exact Layout)</h1>
     <table id="isr-table">
         <thead>
             <tr>
+                <th>Date</th>
                 <th>ISR Name</th>
                 <th>Daily Sets</th>
-                <th>Answer Rate (%)</th>
-                <th>Set Rate (%)</th>
-                <th>Total Calls</th>
-                <th>Calls Answered</th>
-                <th>Next Days Needed</th>
-                <th>3 Day Show Rate</th>
+                <th>Sets Needed</th>
+                <th>Answers</th>
+                <th>5 Min Answer Rate</th>
+                <th>Set Rate</th>
+                <th>Calls</th>
+                <th>STC</th>
+                <th>Showrate - 3 Day</th>
                 <th>MTD Show Average</th>
+                <!-- Add more columns as necessary based on your layout -->
             </tr>
         </thead>
         <tbody>
@@ -65,7 +71,7 @@
     <script>
         const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
         const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
-        const range = 'Daily!A1:I100'; // Adjust the range to match your sheet
+        const range = 'Daily!A1:K100'; // Adjust the range to match your sheet
 
         function initClient() {
             gapi.client.init({
@@ -90,66 +96,45 @@
             const tableBody = document.querySelector('#isr-table tbody');
             tableBody.innerHTML = ''; // Clear previous content
 
-            // Skip the header row (data[0]) and process the rest
+            // Loop through each row in the Google Sheet
             for (let i = 1; i < data.length; i++) {
                 const row = data[i];
-                const isrName = row[0];
-                const dailySets = row[1];
-                const answerRate = parseFloat(row[2]) * 100; // Assuming raw values are fractions
-                const setRate = parseFloat(row[3]) * 100;
-                const totalCalls = row[4];
-                const callsAnswered = row[5];
-                const nextDaysNeeded = row[6];
-                const threeDayShowRate = row[7];
-                const mtdShowAverage = row[8];
-
-                // Create a new row in the table
+                
+                // Create a new table row element
                 const tableRow = document.createElement('tr');
 
-                // Create and append cells
-                const nameCell = createCell(isrName);
-                const setsCell = createCell(dailySets);
-                const answerRateCell = createCell(`${answerRate.toFixed(2)}%`);
-                const setRateCell = createCell(`${setRate.toFixed(2)}%`);
-                const totalCallsCell = createCell(totalCalls);
-                const callsAnsweredCell = createCell(callsAnswered);
-                const nextDaysNeededCell = createCell(nextDaysNeeded);
-                const threeDayShowRateCell = createCell(threeDayShowRate);
-                const mtdShowAverageCell = createCell(mtdShowAverage);
+                // Loop through each cell in the row
+                row.forEach((cellContent, index) => {
+                    const cell = document.createElement('td');
 
-                // Apply conditional formatting based on percentage
-                if (answerRate >= 50) {
-                    answerRateCell.classList.add('high-percentage');
-                } else {
-                    answerRateCell.classList.add('low-percentage');
-                }
+                    // Check for null or empty values and style empty cells
+                    if (!cellContent) {
+                        cellContent = '';
+                        cell.classList.add('empty-cell'); // Apply a specific class for empty cells
+                    }
 
-                if (setRate >= 50) {
-                    setRateCell.classList.add('high-percentage');
-                } else {
-                    setRateCell.classList.add('low-percentage');
-                }
+                    cell.textContent = cellContent;
 
-                // Append cells to the row
-                tableRow.appendChild(nameCell);
-                tableRow.appendChild(setsCell);
-                tableRow.appendChild(answerRateCell);
-                tableRow.appendChild(setRateCell);
-                tableRow.appendChild(totalCallsCell);
-                tableRow.appendChild(callsAnsweredCell);
-                tableRow.appendChild(nextDaysNeededCell);
-                tableRow.appendChild(threeDayShowRateCell);
-                tableRow.appendChild(mtdShowAverageCell);
+                    // Apply conditional formatting to percentage columns (5 Min Answer Rate, Set Rate)
+                    if (index === 5 || index === 6) { // Assuming these columns are percentages
+                        const percentage = parseFloat(cellContent) * 100;
+                        cell.textContent = `${percentage.toFixed(2)}%`;
 
-                // Append the row to the table
+                        // Apply color based on threshold
+                        if (percentage >= 50) {
+                            cell.classList.add('high-percentage');
+                        } else {
+                            cell.classList.add('low-percentage');
+                        }
+                    }
+
+                    // Append the cell to the row
+                    tableRow.appendChild(cell);
+                });
+
+                // Append the row to the table body
                 tableBody.appendChild(tableRow);
             }
-        }
-
-        function createCell(content) {
-            const cell = document.createElement('td');
-            cell.textContent = content;
-            return cell;
         }
 
         gapi.load('client', initClient);
