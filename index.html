@@ -3,141 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISR Dashboard - Dark Theme (Exact Layout)</title>
+    <title>ISR Data Hub</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
+            background-color: #f4f4f4;
             padding: 20px;
         }
         h1 {
-            color: #ffffff;
             text-align: center;
-            margin-bottom: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #1e1e1e;
+            margin-bottom: 20px;
         }
         th, td {
             padding: 12px;
-            text-align: center;
-            border: 1px solid #333;
-            color: #e0e0e0;
+            border: 1px solid #ddd;
+            text-align: left;
         }
         th {
             background-color: #333;
-            font-weight: bold;
+            color: white;
         }
-        .high-percentage {
-            color: #00e676; /* Bright green for high percentages */
+        .location-group, .isr-group {
+            margin-top: 20px;
         }
-        .low-percentage {
-            color: #ff5252; /* Bright red for low percentages */
+        .location-header {
+            background-color: #444;
+            color: white;
+            padding: 10px;
         }
-        .empty-cell {
-            background-color: #2b2b2b; /* Empty cells to match the original layout */
+        .isr-header {
+            background-color: #555;
+            color: white;
+            padding: 8px;
         }
     </style>
 </head>
 <body>
-    <h1>ISR Performance Dashboard (Exact Layout)</h1>
-    <table id="isr-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>ISR Name</th>
-                <th>Daily Sets</th>
-                <th>Sets Needed</th>
-                <th>Answers</th>
-                <th>5 Min Answer Rate</th>
-                <th>Set Rate</th>
-                <th>Calls</th>
-                <th>STC</th>
-                <th>Showrate - 3 Day</th>
-                <th>MTD Show Average</th>
-                <!-- Add more columns as necessary based on your layout -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will be populated here -->
-        </tbody>
-    </table>
 
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script>
-        const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
-        const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
-        const range = 'Daily!A1:K100'; // Adjust the range to match your sheet
+<h1>ISR Data Hub</h1>
 
-        function initClient() {
-            gapi.client.init({
-                'apiKey': apiKey,
-                'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-            }).then(fetchData);
-        }
+<div id="hub-content"></div>
 
-        function fetchData() {
-            gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: spreadsheetId,
-                range: range,
-            }).then(function(response) {
-                const data = response.result.values;
-                populateTable(data);
-            }, function(error) {
-                console.error('Error fetching data: ', error);
-            });
-        }
+<script>
+    const apiKey = 'YOUR_API_KEY';  // Replace with your API Key
+    const spreadsheetId = 'YOUR_SPREADSHEET_ID';  // Replace with your Spreadsheet ID
 
-        function populateTable(data) {
-            const tableBody = document.querySelector('#isr-table tbody');
-            tableBody.innerHTML = ''; // Clear previous content
+    const tabs = ['Daily', 'Efficiency', 'Leads', 'Opportunities'];  // Add more tabs as needed
+    const isrData = {};  // Grouped data by ISR
+    const locationData = {};  // Grouped data by Location
 
-            // Loop through each row in the Google Sheet
-            for (let i = 1; i < data.length; i++) {
-                const row = data[i];
-                
-                // Create a new table row element
-                const tableRow = document.createElement('tr');
+    function fetchData() {
+        tabs.forEach(tab => {
+            const range = `${tab}!A1:Z1000`;  // Adjust the range as needed
 
-                // Loop through each cell in the row
-                row.forEach((cellContent, index) => {
-                    const cell = document.createElement('td');
-
-                    // Check for null or empty values and style empty cells
-                    if (!cellContent) {
-                        cellContent = '';
-                        cell.classList.add('empty-cell'); // Apply a specific class for empty cells
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.values) {
+                        processTabData(tab, data.values);  // Process data for each tab
+                    } else {
+                        console.error('No data found for tab:', tab);
                     }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    }
 
-                    cell.textContent = cellContent;
+    function processTabData(tab, rows) {
+        const headers = rows[0];  // First row contains headers
+        rows.slice(1).forEach(row => {
+            const isrName = row[1];  // Assuming ISR Name is in the second column
+            const location = row[0];  // Assuming Location is in the first column
 
-                    // Apply conditional formatting to percentage columns (5 Min Answer Rate, Set Rate)
-                    if (index === 5 || index === 6) { // Assuming these columns are percentages
-                        const percentage = parseFloat(cellContent) * 100;
-                        cell.textContent = `${percentage.toFixed(2)}%`;
-
-                        // Apply color based on threshold
-                        if (percentage >= 50) {
-                            cell.classList.add('high-percentage');
-                        } else {
-                            cell.classList.add('low-percentage');
-                        }
-                    }
-
-                    // Append the cell to the row
-                    tableRow.appendChild(cell);
-                });
-
-                // Append the row to the table body
-                tableBody.appendChild(tableRow);
+            if (!isrData[isrName]) {
+                isrData[isrName] = { tabs: {} };
             }
-        }
+            if (!isrData[isrName].tabs[tab]) {
+                isrData[isrName].tabs[tab] = [];
+            }
+            isrData[isrName].tabs[tab].push(row);
 
-        gapi.load('client', initClient);
-    </script>
+            if (!locationData[location]) {
+                locationData[location] = { isrs: {} };
+            }
+            if (!locationData[location].isrs[isrName]) {
+                locationData[location].isrs[isrName] = [];
+            }
+            locationData[location].isrs[isrName].push(row);
+        });
+
+        displayHub();
+    }
+
+    function displayHub() {
+        const hubContent = document.getElementById('hub-content');
+        hubContent.innerHTML = '';
+
+        for (const location in locationData) {
+            const locationGroup = document.createElement('div');
+            locationGroup.classList.add('location-group');
+
+            const locationHeader = document.createElement('div');
+            locationHeader.classList.add('location-header');
+            locationHeader.textContent = `Location: ${location}`;
+            locationGroup.appendChild(locationHeader);
+
+            for (const isr in locationData[location].isrs) {
+                const isrGroup = document.createElement('div');
+                isrGroup.classList.add('isr-group');
+                
+                const isrHeader = document.createElement('div');
+                isrHeader.classList.add('isr-header');
+                isrHeader.textContent = `ISR: ${isr}`;
+                isrGroup.appendChild(isrHeader);
+
+                const isrTable = document.createElement('table');
+                const tableHeaderRow = document.createElement('tr');
+                tableHeaderRow.innerHTML = `<th>Tab</th><th>Data</th>`;
+                isrTable.appendChild(tableHeaderRow);
+
+                for (const tab in isrData[isr].tabs) {
+                    isrData[isr].tabs[tab].forEach(dataRow => {
+                        const dataRowElem = document.createElement('tr');
+                        dataRowElem.innerHTML = `<td>${tab}</td><td>${dataRow.join(', ')}</td>`;
+                        isrTable.appendChild(dataRowElem);
+                    });
+                }
+
+                isrGroup.appendChild(isrTable);
+                locationGroup.appendChild(isrGroup);
+            }
+            
+            hubContent.appendChild(locationGroup);
+        }
+    }
+
+    fetchData();
+</script>
+
 </body>
 </html>
