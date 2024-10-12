@@ -49,13 +49,16 @@
 <div id="hub-content"></div>
 
 <script>
-    const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';  // Replace with your API Key
-    const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';  // Replace with your Spreadsheet ID
+    const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';  // Your API Key
+    const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';  // Your Spreadsheet ID
 
-    const tabs = ['Daily', 'Efficiency', 'Leads', 'Opportunities'];  // Add more tabs as needed
-    const isrData = {};  // Grouped data by ISR
-    const locationData = {};  // Grouped data by Location
+    // Tabs to be fetched
+    const tabs = ['Daily', 'Previous Day'];  // Add more tabs if necessary
 
+    const isrData = {};  // This will hold grouped data by ISR
+    const locationData = {};  // This will hold grouped data by Location
+
+    // Fetch data from all tabs
     function fetchData() {
         tabs.forEach(tab => {
             const range = `${tab}!A1:Z1000`;  // Adjust the range as needed
@@ -66,13 +69,14 @@
                     if (data.values) {
                         processTabData(tab, data.values);  // Process data for each tab
                     } else {
-                        console.error('No data found for tab:', tab);
+                        console.error(`No data found for tab: ${tab}`);
                     }
                 })
-                .catch(error => console.error('Error fetching data:', error));
+                .catch(error => console.error(`Error fetching data for ${tab}:`, error));
         });
     }
 
+    // Process the data from each tab and group by ISR and Location
     function processTabData(tab, rows) {
         const headers = rows[0];  // First row contains headers
         rows.slice(1).forEach(row => {
@@ -96,13 +100,15 @@
             locationData[location].isrs[isrName].push(row);
         });
 
-        displayHub();
+        displayHub();  // Once all data is processed, display the hub
     }
 
+    // Display the main hub with ISR and Location groups
     function displayHub() {
         const hubContent = document.getElementById('hub-content');
-        hubContent.innerHTML = '';
+        hubContent.innerHTML = '';  // Clear the content before appending
 
+        // Display by Location
         for (const location in locationData) {
             const locationGroup = document.createElement('div');
             locationGroup.classList.add('location-group');
@@ -112,10 +118,13 @@
             locationHeader.textContent = `Location: ${location}`;
             locationGroup.appendChild(locationHeader);
 
+            const locationTable = document.createElement('table');
+            locationGroup.appendChild(locationTable);
+
             for (const isr in locationData[location].isrs) {
                 const isrGroup = document.createElement('div');
                 isrGroup.classList.add('isr-group');
-                
+
                 const isrHeader = document.createElement('div');
                 isrHeader.classList.add('isr-header');
                 isrHeader.textContent = `ISR: ${isr}`;
@@ -137,11 +146,12 @@
                 isrGroup.appendChild(isrTable);
                 locationGroup.appendChild(isrGroup);
             }
-            
+
             hubContent.appendChild(locationGroup);
         }
     }
 
+    // Call the fetchData function when the page loads
     fetchData();
 </script>
 
