@@ -3,28 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISR Dashboard</title>
+    <title>ISR Dashboard - Dark Theme</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            background-color: #1e1e1e;
         }
         th, td {
-            padding: 8px;
+            padding: 12px;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
+            color: #e0e0e0;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #333;
+            font-weight: bold;
         }
         .high-percentage {
-            color: green;
+            color: #00e676; /* Bright green for high percentages */
         }
         .low-percentage {
-            color: red;
+            color: #ff5252; /* Bright red for low percentages */
         }
     </style>
 </head>
@@ -37,6 +49,11 @@
                 <th>Daily Sets</th>
                 <th>Answer Rate (%)</th>
                 <th>Set Rate (%)</th>
+                <th>Total Calls</th>
+                <th>Calls Answered</th>
+                <th>Next Days Needed</th>
+                <th>3 Day Show Rate</th>
+                <th>MTD Show Average</th>
             </tr>
         </thead>
         <tbody>
@@ -48,7 +65,7 @@
     <script>
         const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
         const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
-        const range = 'Daily!A1:D100'; // Adjust the range to match your data
+        const range = 'Daily!A1:I100'; // Adjust the range to match your sheet
 
         function initClient() {
             gapi.client.init({
@@ -80,6 +97,11 @@
                 const dailySets = row[1];
                 const answerRate = parseFloat(row[2]) * 100; // Assuming raw values are fractions
                 const setRate = parseFloat(row[3]) * 100;
+                const totalCalls = row[4];
+                const callsAnswered = row[5];
+                const nextDaysNeeded = row[6];
+                const threeDayShowRate = row[7];
+                const mtdShowAverage = row[8];
 
                 // Create a new row in the table
                 const tableRow = document.createElement('tr');
@@ -89,6 +111,11 @@
                 const setsCell = createCell(dailySets);
                 const answerRateCell = createCell(`${answerRate.toFixed(2)}%`);
                 const setRateCell = createCell(`${setRate.toFixed(2)}%`);
+                const totalCallsCell = createCell(totalCalls);
+                const callsAnsweredCell = createCell(callsAnswered);
+                const nextDaysNeededCell = createCell(nextDaysNeeded);
+                const threeDayShowRateCell = createCell(threeDayShowRate);
+                const mtdShowAverageCell = createCell(mtdShowAverage);
 
                 // Apply conditional formatting based on percentage
                 if (answerRate >= 50) {
@@ -108,6 +135,11 @@
                 tableRow.appendChild(setsCell);
                 tableRow.appendChild(answerRateCell);
                 tableRow.appendChild(setRateCell);
+                tableRow.appendChild(totalCallsCell);
+                tableRow.appendChild(callsAnsweredCell);
+                tableRow.appendChild(nextDaysNeededCell);
+                tableRow.appendChild(threeDayShowRateCell);
+                tableRow.appendChild(mtdShowAverageCell);
 
                 // Append the row to the table
                 tableBody.appendChild(tableRow);
