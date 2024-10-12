@@ -3,42 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ISR Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .high-percentage {
+            color: green;
+        }
+        .low-percentage {
+            color: red;
+        }
+    </style>
 </head>
 <body>
+    <h1>ISR Performance Dashboard</h1>
+    <table id="isr-table">
+        <thead>
+            <tr>
+                <th>ISR Name</th>
+                <th>Daily Sets</th>
+                <th>Answer Rate (%)</th>
+                <th>Set Rate (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
 
-<div class="container">
-    <h1>Google Sheets Dashboard</h1>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        const apiKey = 'AIzaSyDUpztgaNLc1Vlq-ctxZbHo-ZRHl8wTJ60';
+        const spreadsheetId = '1COuit-HkAoUL3d5uv9TJbqxxOzNqkvNA0VbKl3apzOA';
+        const range = 'Daily!A1:D100'; // Adjust the range to match your data
 
-    <!-- Tab Buttons -->
-    <div class="tab-buttons">
-        <button class="active" onclick="showTab('daily')">Daily</button>
-        <button onclick="showTab('leads')">Leads</button>
-        <button onclick="showTab('efficiency')">Efficiency</button>
-    </div>
+        function initClient() {
+            gapi.client.init({
+                'apiKey': apiKey,
+                'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }).then(fetchData);
+        }
 
-    <!-- Tab Content -->
-    <div id="daily" class="table-container active">
-        <h2>Daily Data</h2>
-        <table id="daily-table"></table>
-    </div>
+        function fetchData() {
+            gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: spreadsheetId,
+                range: range,
+            }).then(function(response) {
+                const data = response.result.values;
+                populateTable(data);
+            }, function(error) {
+                console.error('Error fetching data: ', error);
+            });
+        }
 
-    <div id="leads" class="table-container">
-        <h2>Leads Data</h2>
-        <table id="leads-table"></table>
-    </div>
+        function populateTable(data) {
+            const tableBody = document.querySelector('#isr-table tbody');
+            tableBody.innerHTML = ''; // Clear previous content
 
-    <div id="efficiency" class="table-container">
-        <h2>Efficiency Data</h2>
-        <table id="efficiency-table"></table>
-    </div>
-</div>
+            // Skip the header row (data[0]) and process the rest
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                const isrName = row[0];
+                const dailySets = row[1];
+                const answerRate = parseFloat(row[2]) * 100; // Assuming raw values are fractions
+                const setRate = parseFloat(row[3]) * 100;
 
-<!-- Google API Script -->
-<script src="https://apis.google.com/js/api.js"></script>
-<!-- Main Script -->
-<script src="script.js"></script>
+                // Create a new row in the table
+                const tableRow = document.createElement('tr');
 
+                // Create and append cells
+                const nameCell = createCell(isrName);
+                const setsCell = createCell(dailySets);
+                const answerRateCell = createCell(`${answerRate.toFixed(2)}%`);
+                const setRateCell = createCell(`${setRate.toFixed(2)}%`);
+
+                // Apply conditional formatting based on percentage
+                if (answerRate >= 50) {
+                    answerRateCell.classList.add('high-percentage');
+                } else {
+                    answerRateCell.classList.add('low-percentage');
+                }
+
+                if (setRate >= 50) {
+                    setRateCell.classList.add('high-percentage');
+                } else {
+                    setRateCell.classList.add('low-percentage');
+                }
+
+                // Append cells to the row
+                tableRow.appendChild(nameCell);
+                tableRow.appendChild(setsCell);
+                tableRow.appendChild(answerRateCell);
+                tableRow.appendChild(setRateCell);
+
+                // Append the row to the table
+                tableBody.appendChild(tableRow);
+            }
+        }
+
+        function createCell(content) {
+            const cell = document.createElement('td');
+            cell.textContent = content;
+            return cell;
+        }
+
+        gapi.load('client', initClient);
+    </script>
 </body>
 </html>
